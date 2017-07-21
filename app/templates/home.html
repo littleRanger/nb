@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>无标题文档</title>
+<link href="shell frame\bootstrap-3.3.7-dist\css\bootstrap.min.css" rel="stylesheet" />
+<script src="shell frame\jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="shell frame\bootstrap-3.3.7-dist\js\bootstrap.min.js" type="text/javascript"></script>
+<style type="text/css">
+	select{ }
+	.nav_label{
+		margin-left:5%}
+	.hello{
+		margin-bottom:2%;}
+	#dropdown_1{
+		overflow:auto;
+		height:150px;}
+	.link_nav{
+		float:left;
+		width:13%;
+		height:100%;
+		margin-left:2%;}
+	.bs_content{
+		width:80%;
+		float:left;
+		margin-left:3%;}
+	.td_float{
+		float:right;}
+</style>
+</head>
+
+
+<body>
+<div class="">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Brand</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav nav_label">
+        <li class="active"><a href="home.html">基站设备</a></li>
+        <li class="dropdown">
+          <a href="bs.html" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">通道设备<span class="caret"></span></a>
+          <ul class="dropdown-menu" id="dropdown_1" >
+            <li><a href="#">通道1</a></li>
+			<li role="separator" class="divider"></li>
+            <li><a href="#">通道2</a></li>
+			<li role="separator" class="divider"></li>
+            <li><a href="#">通道3</a></li>
+			<li role="separator" class="divider"></li>
+			<li><a href="#">通道4</a></li>
+			<li role="separator" class="divider"></li>
+            <li><a href="#">通道5</a></li>
+			<li role="separator" class="divider"></li>
+            <li><a href="#">通道6</a></li>
+          </ul>
+        </li>
+      </ul>
+	  
+     <p class="navbar-text navbar-right"><a class="">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="clearfix">  
+  <!--基站信息块页面-->
+  <div class="bs_content">
+    <h3 class="hello">Hello, Administrator!</h3>
+	<div>
+	  <h4>当前通信状态</h4>
+	  <table class="table">
+		<thead>
+		<tr>
+		  <td>吞吐量</td>
+		  <td>下行吞吐量</td>
+		  <td>上行吞吐量</td>
+		  <td>丢包率</td>  
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+		  <td>None bps</td>
+		  <td>None bps</td>
+		  <td>None bps</td>
+		  <td>0%</td>
+		</tr>
+		</tbody>
+	  </table>
+	</div>
+	<div>
+	  <h4>通道</h4>
+	  <table class="table table-hover table-bordered">
+	    <thead>
+		  <tr>
+		    <td>通道ID</td>
+			<td>终端数</td>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr>
+		    <td>通道1</td>
+			<td>0
+				<div class="text-right td_float">
+				  <button type="button" class="btn btn-default">
+					<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+				  </button>
+				</div>
+			</td>
+		  </tr>
+		  <tr>
+		    <td>通道2</td>
+			<td>0
+				<div class="text-right td_float">
+				  <button type="button" class="btn btn-default">
+					<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+				  </button>
+				</div>
+			</td>
+		  </tr>
+		  <tr>
+		    <td>通道3</td>
+			<td>0
+				<div class="text-right td_float">
+				  <button type="button" class="btn btn-default">
+					<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+				  </button>
+				</div>
+			</td>
+		  </tr>
+		  <tr>
+		    <td>通道4</td>
+			<td>0
+				<div class="text-right td_float">
+				  <button type="button" class="btn btn-default">
+					<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+				  </button>
+				</div>
+			</td>
+		  </tr>
+		  <tr>
+		    <td>通道5</td>
+			<td>0
+				<div class="text-right td_float">
+				  <button type="button" class="btn btn-default">
+					<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+				  </button>
+				</div>
+			</td>
+		  </tr>
+		</tbody>
+		<tfoot></tfoot>
+	 </table>
+	</div> 
+	<nav>
+  		<ul class="pager">
+    		<li><a href="#">上一页</a></li>
+    		<li><a href="#">下一页</a></li>
+  		</ul>
+	</nav>
+  </div>
+  <!--链接块 -->
+  <div class="link_nav">
+  	<h5>快速链接</h5>
+    <ul>
+	  <li>通道配置</li>
+	  <li>终端配置</li>
+	  <li>终端位置</li>
+	</ul>
+  </div>
+</div>
+</body>
+</html>
