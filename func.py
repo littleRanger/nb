@@ -1,4 +1,5 @@
 #coding:UTF-8
+#invalid
 from app import BSConfig
 
 
