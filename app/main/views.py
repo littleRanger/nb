@@ -13,3 +13,10 @@ def home():
     return render_template('home.html')
 
 
+@main.route('/channel', methods=['GET','POST'])
+def channel():
+    return render_template('channel.html')
+
+@main.route('/map', methods=['GET','POST'])
+def map():
+    return render_template('map.html')

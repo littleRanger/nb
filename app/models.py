@@ -67,3 +67,5 @@ class TrxConfig(db.Model):
     
     def __repr__(self):
         return '<Trx %s>'%self.name
+
+#class 
