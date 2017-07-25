@@ -50,7 +50,11 @@ class BSConfig(db.Model):
     sin_family = db.Column(db.Integer)
     dlLogicSubFrameIdx = db.Column(db.Integer,default=1)
     Trxs = db.relationship('TrxConfig',backref='bs')
-    
+   
+    Throughout = db.Column(db.Integer,default=800)
+    ulThroughout = db.Column(db.Integer,default=400)
+    dlThroughout = db.Column(db.Integer,default=400)
+    PacketMiss = db.Column(db.Float, default=0.1)
     def __repr__(self):
         return '<BS %s>'%self.name
     

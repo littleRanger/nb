@@ -1,13 +1,25 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}nbWeb - Register{% endblock %}
-
+{% block navbar %} 
+<!--    <p class="navbar-text navbar-right">
+        {% if current_user.is_authenticated %}
+        <a class="" href="{{ url_for('auth.logout') }}">退出登录</a>
+        {% else %}
+        <a class="" href="{{ url_for('auth.login') }}">登录</a>
+	    {% endif %}
+    </p>
+-->
+{% endblock %}
 {% block page_content %}
 <div class="page-header">
-    <h1>Register</h1>
+    <h1>Register</h1> 
 </div>
 <div class="col-md-4">
 	{{ wtf.quick_form(form)}}
+
+	<a style="padding-left:20px" href={{url_for('auth.login')}}>already have an account? click here to login</a>
 </div>
+
 {% endblock %}
 
