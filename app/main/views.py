@@ -21,7 +21,8 @@ def home():
 @login_required
 def dataAjax():
     bsconfig = BSConfig.query.filter_by(bsid=1).first()
-    return json.dumps(bsconfig.as_dict())
+    #return json.dumps(bsconfig.as_dict())
+    return bsconfig.as_dict()
 
 
 @main.route('/channel', methods=['GET','POST'])
