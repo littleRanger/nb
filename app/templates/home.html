@@ -26,6 +26,40 @@
 	.td_float{
 		float:right;}
     </style>
+    <script type="text/javascript">
+    function createXMLHttpRequest(){
+    	if (window.XMLHttpRequest) 
+    		xmlhttp = new XMLHttpRequest();
+    	else
+    		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    function sendRequest(){
+    	createXMLHttpRequest();
+    	xmlhttp.onreadystatechange = processResponse();
+    	xmlhttp.open("GET",{{url_for('main.dataAjax')}},true);
+    	xmlhttp.send();
+    }
+    function processResponse(){
+    	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+    		var txt = xmlhttp.responseText;
+    		var obj = eval("(" + txt + ")");
+    		document.getElementById("throughout").innerHTML = obj.Throughout;
+    	};
+    	setTimeout("sendRequest()",5000);
+    }
+    function addLoadEvent(func){
+    	var currOnload = window.onload;
+    	if(typeof currOnload != "function"){
+    		window.onload = func;
+    	}else{
+    		window.onload = function(){
+    			currOnload();
+    			func();
+    		}
+    	}
+    }
+    addLoadEvent(sendRequest);
+    </script>
 	{% endblock %}
 
 {% block page_content %}
@@ -88,7 +122,7 @@
 		</thead>
 		<tbody>
 		<tr>
-			<td>{{throughout}} bps</td>
+			<td id="throughout">{{throughout}} bps</td>
 			<td>{{ulthroughout}} bps</td>
 			<td>{{dlthroughout}} bps</td>
 			<td>{{packetmiss}}%</td>
