@@ -17,6 +17,12 @@ def index():
 def home():
     return render_template('home.html')
 
+@main.route('/home/data',methods = ['GET','POST'])
+@login_required
+def dataAjax():
+    bsconfig = BSConfig.query.filter_by(bsid=1).first()
+    return json.dumps(bsconfig.as_dict())
+
 
 @main.route('/channel', methods=['GET','POST'])
 @login_required

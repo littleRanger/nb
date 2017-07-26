@@ -27,7 +27,7 @@ class User(UserMixin,db.Model):
         return User.query.get(int(user_id))
     
     def __repr__(self):
-        return 'Users %s'%self.name
+        return 'Users %s'%self.username
 
 
 
@@ -55,6 +55,9 @@ class BSConfig(db.Model):
     ulThroughout = db.Column(db.Integer,default=400)
     dlThroughout = db.Column(db.Integer,default=400)
     PacketMiss = db.Column(db.Float, default=0.1)
+    def as_dict(self):
+        return {c.name:getattr(self,c.name) for c in self.__table__.columns}
+        
     def __repr__(self):
         return '<BS %s>'%self.name
     
