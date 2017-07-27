@@ -59,7 +59,7 @@ class BSConfig(db.Model):
         return {c.name:getattr(self,c.name) for c in self.__table__.columns}
         
     def __repr__(self):
-        return '<BS %s>'%self.name
+        return '<BS %s>'%self.bsid
     
 class TrxConfig(db.Model):
     __tablename__="TrxConfig" 
@@ -79,7 +79,9 @@ class TrxConfig(db.Model):
     AirRate  = db.Column(db.Integer , default=19200)
     TxPower  = db.Column(db.Integer , default=30) 
     SleepTime= db.Column(db.Integer , default=250)
+    def as_dict(self):
+        return {c.name:getattr(self,c.name) for c in self.__table__.columns}
     def __repr__(self):
-        return '<Trx %s>'%self.name
+        return '<Trx %s>'%self.trxId
 
 #class 

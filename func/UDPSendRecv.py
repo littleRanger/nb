@@ -32,7 +32,6 @@ def UDPRecvfromBS(ListenAddr):
         #接收一个数据
         data,addr=s.recvfrom(1024)       
         print('Received:',binascii.hexlify(data),'from',addr)
-
+    return data
 if __name__  == "__main__":
-    UDPSendtoBS(('192.168.31.31',8000),('192.168.31.31',2000),"a12")
-    UDPRecvfromBS(('192.168.31.31',2000))
+    UDPSendtoBS(('192.168.31.31',8000),('192.168.31.168',2000),"a12")
