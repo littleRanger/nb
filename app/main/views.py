@@ -4,13 +4,13 @@ from flask import render_template
 from flask_login import login_required
 from . import main
 from ..models import BSConfig
-
+import json
 @main.route('/', methods=['GET','POST'])
 @login_required
 def index():
     id =1 
     bs = BSConfig.query.filter_by(bsid=id).first()     
-    return render_template('home.html', throughout=bs.Throughout,ulthroughout=bs.ulThroughout,dlthroughout=bs.dlThroughout,packectmiss=100*bs.PacketMiss, )
+    return render_template('home.html')
 
 @main.route('/home', methods=['GET','POST'])
 @login_required
@@ -20,9 +20,16 @@ def home():
 @main.route('/home/data',methods = ['GET','POST'])
 @login_required
 def dataAjax():
+    print("a")
     bsconfig = BSConfig.query.filter_by(bsid=1).first()
-    #return json.dumps(bsconfig.as_dict())
-    return bsconfig.as_dict()
+    return json.dumps(bsconfig.as_dict())
+
+@main.route('/channel/trxconfigdata',methods = ['GET','POST'])
+@login_required
+def GetChannelConfig():
+    trxconfig = TrxConfig.query.filter_by(trxId=1).first()
+    print trxconfig
+    return json.dumps(trxconfig.as_dict())
 
 
 @main.route('/channel', methods=['GET','POST'])

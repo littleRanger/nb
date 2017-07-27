@@ -72,6 +72,13 @@ class TrxConfig(db.Model):
     trxFreq = db.Column(db.Integer , default=434)
     bs_id = db.Column(db.Integer,db.ForeignKey(BSConfig.bsid))
     
+    BaudRate = db.Column(db.Integer , default=115200)
+    ModeAddr = db.Column(db.Integer , default=4661)
+    CheckSum = db.Column(db.String(64) , default="8N1")
+    Channel  = db.Column(db.Integer , default=434)
+    AirRate  = db.Column(db.Integer , default=19200)
+    TxPower  = db.Column(db.Integer , default=30) 
+    SleepTime= db.Column(db.Integer , default=250)
     def __repr__(self):
         return '<Trx %s>'%self.name
 
