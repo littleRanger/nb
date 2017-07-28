@@ -33,7 +33,33 @@
 		float:right;}	
 </style>
 <script type="text/javascript">
+function createXMLHttpRequest(){
+	if(window.XMLHttpRequest)
+		xmlhttp = new XMLHttpRequest();
+	else
+		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+}
+function GetTrxConfig(){
+    var test = window.location.href;
+	createXMLHttpRequest();
+	xmlhttp.onreadystatechange = processResponse;
+	var str=test.slice(0,-1)+"gettrxconfigdata/"+test.charAt(test.length-1);
+
+	alert("config fail:no response from Base!");
+	//alert(str);
+    xmlhttp.open("GET", str ,true);
+	xmlhttp.send();
+}
+
+function processResponse(){
+	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+		var txt = xmlhttp.responseText;
+	if(txt==0)
+	{alert("config fail:no response");}
+	}
+}
 </script>
+
 {% endblock %}
 {% block page_content %}
 <div class="">
@@ -121,10 +147,10 @@
 	  </div>
 	  <div class="form-group">
 		<div class="col-sm-offset-4 col-sm-3">
-		  <button id="" type="submit" class="btn btn-default">配置参数</button>
+		  <button id="" type="submit" onclick="ConfigTrx"  class="btn btn-default">配置参数</button>
 		</div>
 		<div  class="col-sm-3">
-		  <button  type="botton" oneclick="" class="btn btn-default">获取参数</button>
+		  <button  type="botton" onclick="GetTrxConfig()" class="btn btn-default">获取参数</button>
 		</div>
 	  </div>
     </fieldset>

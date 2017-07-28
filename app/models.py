@@ -56,8 +56,8 @@ class BSConfig(db.Model):
     dlThroughout = db.Column(db.Integer,default=400)
     PacketMiss = db.Column(db.Float, default=0.1)
     def as_dict(self):
-        return {c.name:getattr(self,c.name) for c in self.__table__.columns}
-        
+        dict= {c.name:getattr(self,c.name) for c in self.__table__.columns if c.name=="Throughout" or c.name=="dlThroughout" or c.name=="ulThroughout" or c.name=="PacketMiss"}
+        return dict
     def __repr__(self):
         return '<BS %s>'%self.bsid
     
@@ -80,7 +80,15 @@ class TrxConfig(db.Model):
     TxPower  = db.Column(db.Integer , default=30) 
     SleepTime= db.Column(db.Integer , default=250)
     def as_dict(self):
-        return {c.name:getattr(self,c.name) for c in self.__table__.columns}
+        d= {c.name:getattr(self,c.name) for c in self.__table__.columns
+                if c.name=="BaudRate" or
+                   c.name=="ModeAddr" or
+                   c.name=="CheckSum" or
+                   c.name=="Channel" or
+                   c.name=="AirRate" or
+                   c.name=="TxPower" or
+                   c.name=="SleepTime" }
+        return d
     def __repr__(self):
         return '<Trx %s>'%self.trxId
 
