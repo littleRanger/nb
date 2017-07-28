@@ -1,5 +1,5 @@
 *.pyc
-*/*.pyc
-*/*/*.pyc
-*/*/*/*.pyc
+app/*.pyc
+app/main/*.pyc
+app/auth/*.pyc
 venv/*
