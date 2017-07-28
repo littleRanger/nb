@@ -40,7 +40,6 @@
     }
     function processResponse(){
     	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-//    	alert("aaa");
 			var txt = xmlhttp.responseText;
     		var obj = eval("(" + txt + ")");
     		document.getElementById("throughout").innerHTML = obj.Throughout;
@@ -49,7 +48,6 @@
     		document.getElementById("packetmiss").innerHTML = obj.PacketMiss;
     	setTimeout("sendRequest()",5000);
 				};
-   // 	setTimeout("sendRequest()",5000);
     }
     function addLoadEvent(func){
     	var currOnload = window.onload;
