@@ -25,6 +25,7 @@
 	.td_float{
 		float:right;}
     </style>
+	<link rel-"icon" href="/static/img/favicon.ico">
     <script type="text/javascript">
     function createXMLHttpRequest(){
     	if (window.XMLHttpRequest) 
@@ -84,15 +85,15 @@
           <ul class="dropdown-menu" id="dropdown_1" >
 			  <li><a href="{{url_for('main.channelname',channelname=1)}}">通道1</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道2</a></li>
+			<li><a href="{{url_for('main.channelname',channelname=2)}}">通道2</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道3</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=3)}}">通道3</a></li>
 			<li role="separator" class="divider"></li>
-			<li><a href="#">通道4</a></li>
+			<li><a href="{{url_for('main.channelname',channelname=4)}}">通道4</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道5</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=5)}}">通道5</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道6</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=6)}}">通道6</a></li>
           </ul>
         </li>
       </ul>
@@ -205,7 +206,7 @@
   		</ul>
 	</nav>
   </div>
-  <!--链接块 -->
+ <!-- <!--链接块 -->
   <div class="link_nav">
   	<h5>快速链接</h5>
     <ul>
@@ -213,6 +214,6 @@
 	  <li>终端配置</li>
 	  <li>终端位置</li>
 	</ul>
-  </div>
+  </div>-->
 </div>
 {% endblock %}

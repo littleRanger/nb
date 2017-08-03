@@ -2,6 +2,9 @@
 import socket
 import struct
 import binascii
+
+def 
+
 def UDPSendtoBS(LocalAddr, DesAddr,data):
     udpsock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     udpsock.bind(LocalAddr)

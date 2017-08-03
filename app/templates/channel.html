@@ -32,7 +32,7 @@
 	.td_float{
 		float:right;}	
 </style>
-<script type="text/javascript">
+<script >
 function createXMLHttpRequest(){
 	if(window.XMLHttpRequest)
 		xmlhttp = new XMLHttpRequest();
@@ -42,20 +42,43 @@ function createXMLHttpRequest(){
 function GetTrxConfig(){
     var test = window.location.href;
 	createXMLHttpRequest();
-	xmlhttp.onreadystatechange = processResponse;
-	var str=test.slice(0,-1)+"gettrxconfigdata/"+test.charAt(test.length-1);
+	var str=test.split("channel");
+	var desurl=str[0]+"channel/gettrxconfigdata/"+str[1].charAt(1);
 
-	alert("config fail:no response from Base!");
-	//alert(str);
-    xmlhttp.open("GET", str ,true);
+	alert(desurl);
+    xmlhttp.open("GET", desurl ,true);
 	xmlhttp.send();
+	xmlhttp.onreadystatechange = processResponse;
+	alert("1");
 }
 
 function processResponse(){
 	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-		var txt = xmlhttp.responseText;
-	if(txt==0)
-	{alert("config fail:no response");}
+		var obj = xmlhttp.responseText;
+        //alert("2");
+		var txt = eval("("+obj+")");
+		if(txt.BaudRate==1){
+			alert("get config info fail");
+	        document.getElementById("baudrate").value=0;
+			document.getElementById("address").value=0;
+			document.getElementById("check").value=0;
+			document.getElementById("channel").value=0;
+			document.getElementById("rate").value=0;
+			document.getElementById("power").value=0;
+			document.getElementById("sleeptime").value=0;
+		}
+		
+		else{
+			alert("get config info success");
+	        document.getElementById("baudrate").value=txt.BaudRate;
+			document.getElementById("address").value=txt.ModeAddr;
+			document.getElementById("check").value=txt.CheckSum;
+			document.getElementById("channel").value=txt.Channel;
+			document.getElementById("rate").value=txt.AirRate;
+			document.getElementById("power").value=txt.TxPower;
+			document.getElementById("sleeptime").value=txt.SleepTime;
+		}
+	
 	}
 }
 </script>
@@ -70,24 +93,23 @@ function processResponse(){
       <a class="navbar-brand" href="#">Brand</a>
     </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav nav_label">
-		  <li class=""><a href="{{url_for('main.index')}}">基站设备</a></li>
-        <li class="dropdown active">
-			<a  href = "{{url_for('main.channel')}}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">通道设备<span class="caret"></span></a>
+		  <li class="active"><a href="{{url_for('main.index')}}">基站设备</a></li>
+        <li class="dropdown">
+			<a  href = "{{ url_for('main.channel')}} "class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">通道设备<span class="caret"></span></a>
           <ul class="dropdown-menu" id="dropdown_1" >
-			  <li><a href="{{url_for('main.channelname',channelname=1)}}">通道1</a></li>
+			  <li ><a href="{{url_for('main.channelname',channelname=1)}}">通道1</a></li>
 			<li role="separator" class="divider"></li>
 			<li><a href="{{url_for('main.channelname',channelname=2)}}">通道2</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道3</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=3)}}">通道3</a></li>
 			<li role="separator" class="divider"></li>
-			<li><a href="#">通道4</a></li>
+			<li><a href="{{url_for('main.channelname',channelname=4)}}">通道4</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道5</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=5)}}">通道5</a></li>
 			<li role="separator" class="divider"></li>
-            <li><a href="#">通道6</a></li>
+            <li><a href="{{url_for('main.channelname',channelname=6)}}">通道6</a></li>
           </ul>
         </li>
       </ul>
@@ -106,37 +128,37 @@ function processResponse(){
   	  <div class="form-group">
     	<label for="bps" class="col-sm-4 control-label">波特率</label>
     	<div class="col-sm-6">
-			<input id="BaudRate" type="text" class="form-control"  value="{{baudrate}}">
+			<input  type="text" class="form-control" id="baudrate" value="{{baudrate}}">
     	</div>
 	  </div>
 	  <div class="form-group">
 		<label for="address" class="col-sm-4 control-label">模块地址</label>
 		<div class="col-sm-6">
-			<input type="text" class="form-control" id="address" value="{{modeaddr}}">
+			<input  type="text" class="form-control" id="address" value="{{modeaddr}}">
 		</div>
 	  </div>
 	  <div class="form-group">
 		<label for="check" class="col-sm-4 control-label">校验位</label>
 		<div class="col-sm-6">
-			<input type="text" class="form-control" id="check" value="{{checksum}}">
+			<input  type="text" class="form-control" id="check" value="{{checksum}}">
 		</div>
 	  </div>
 	  <div class="form-group">
 		<label for="channel" class="col-sm-4 control-label">通信信道</label>
 		<div class="col-sm-6">
-			<input type="text" class="form-control" id="channel" value="{{channel}}">
+			<input  type="text" class="form-control" id="channel" value="{{channel}}">
 		</div>
 	  </div>
 	  <div class="form-group">
 		<label for="rate" class="col-sm-4 control-label">空中速率</label>
 		<div class="col-sm-6">
-			<input type="text" class="form-control" id="rate" value="{{airrate}}">
+			<input   type="text" class="form-control" id="rate" value="{{airrate}}">
 		</div>
 	  </div>
 	  <div class="form-group">
 		<label for="power" class="col-sm-4 control-label">发射功率(dBm)</label>
 		<div class="col-sm-6">
-			<input type="text" class="form-control" id="power" value="{{txpower}}">
+			<input  type="text" class="form-control" id="power" value="{{txpower}}">
 		</div>
 	  </div>
 	  <div class="form-group">
@@ -150,7 +172,7 @@ function processResponse(){
 		  <button id="" type="submit" onclick="ConfigTrx"  class="btn btn-default">配置参数</button>
 		</div>
 		<div  class="col-sm-3">
-		  <button  type="botton" onclick="GetTrxConfig()" class="btn btn-default">获取参数</button>
+		  <button  type="" onclick="GetTrxConfig()" class="btn btn-default">获取参数</button>
 		</div>
 	  </div>
     </fieldset>

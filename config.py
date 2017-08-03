@@ -7,6 +7,8 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     FLASKY_MAIL_SUBJECT_PREFIX = '[FLASKY]'
     FLASKY_MAIL_SENDER = 'FLASKY qcc <juggking@163.com>'
+    LOCALADDR = ('172.16.56.18',9000) 
+    DESADDR = (' 0.0.0.0',9000)
     @staticmethod
     def init_app(app):
         pass

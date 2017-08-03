@@ -21,7 +21,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
 #   app.config['SQLALCHEMY_DATABASE_URL'] = 'mysql+pymysql://root:007119@localhost:3306/database_demo'
     config[config_name].init_app(app)
-
+    print()
 
     
     bootstrap.init_app(app)
