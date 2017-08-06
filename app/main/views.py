@@ -1,13 +1,11 @@
 #coding:UTF-8
 
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for,current_app,request
 from flask_login import login_required
 from . import main
-import request
 from ..models import BSConfig,TrxConfig
 from ...config import config
 import json
-
 
 @main.route('/', methods=['GET','POST'])
 @login_required
@@ -35,6 +33,7 @@ def dataAjax():
 @login_required
 def channel():
     return render_template('channel.html')
+
 #channel 
 @main.route('/channel/<channelname>', methods=['GET','POST'])
 @login_required
@@ -78,7 +77,7 @@ def GetChannelConfig(channelname):
         else:
             print("-------")
      #       print(json.dumps({"BaudRate":1,"Channel":0}))
-            return json.dumps({<F10>"BaudRate":1,"Channel":0})
+            return json.dumps({"BaudRate":1,"Channel":0})
 
 
 #config channel  for ajax get
@@ -89,24 +88,46 @@ def Configchannel(channelname):
     id = int(channelname)
     if ( id in range(1,7)):
         #get data
-        data = json.loads(req)
-
+        #message = json.loads(request.get_Json)
+        msg = {"BaudRate":115200,"ModeAddr":111,"CheckSum":"xxx","Channel":"zzz","AirRate":777,"TxPower":999,"SleepTime":90}
         #send message using udp 
-        ret = UDPSendtoBS(data)
-        if !ret:
+        #dictdata={"a":1,"b":2,"C":4,"d":"yy","e":6,"f":"xx"}
+        k=msg.keys()
+        v=msg.values()
+        fmt='@'
+        for value in v:
+            if type(value)==int:
+                fmt+='i'
+            else:
+                len_value=len(value)
+                fmt+=str(len_value)
+                fmt+='s'
+    
+        print('data format is:%s')%fmt
+        data=struct.pack(fmt,*v)
+        print msg
+        ret = UDPSendtoBS(current_app.config["LOCALADDR"],current_app.config["DESADDR"],msg)
+        if !ret:#send success
+            data,ret = UDPRecvfromBS(current_app.config["RECVADDR"])
+            if !ret:#recv success
+                recvdata=struct.unpack(fmt,data)
+                for i in Rang(len(k)):
+                    msg[key[i]]=recvdata[i]
+                #write to db
+                #####
+                db_trxconfig = TrxConfig.query.filter_by(trxId=int(channelname)).first().update(msg)
+        
+                msg['ret']=0
+                
+                return json.dumps(msg)
+        else:#send fail
+            return json.dumps({"ret":"failed","error":1})#sending error
             
-            db_trxconfig = TrxConfig.query.filter_by(trxId=int(channelname)).first()
-            return json.dumps({"BaudRate":1,"Channel":0})
-        else:
-            print("-------")
-     #       print(json.dumps({"BaudRate":1,"Channel":0}))
-            return json.dumps({"BaudRate":1,"Channel":0})
-  
 
 #config BS  for ajax get
 @main.route('/config_Base/<basename>',methods = ['GET','POST'])
 @login_required
-def GetChannelConfig(channelname):
+def GetChannelConfig(basename):
     id = int(channelname)
     db_trxconfig = TrxConfig.query.filter_by(trxId=int(channelname)).first()
     if ( id in range(1,7)):
