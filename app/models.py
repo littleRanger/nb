@@ -1,8 +1,10 @@
 #coding:UTF-8
+from flask import current_app
 from flask_login import UserMixin
-from app import db
+from . import db
 from werkzeug.security import generate_password_hash,check_password_hash
 from . import login_manager
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 class User(UserMixin,db.Model):
 #class User(db.Model):
@@ -11,6 +13,31 @@ class User(UserMixin,db.Model):
     username = db.Column(db.String(64),unique=True)
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(64),unique=True)
+    confirmed = db.Column(db.Boolean,default=False)
+     
+    def is_admin(self):
+        if self.email==current_app.config["NB_ADMIN"]:
+            return True
+        else:
+            return False 
+    
+    def generate_confirmation_token(self,expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'],expiration)
+        return s.dumps({'confirm':self.id})
+
+    def confirm(self,token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        print self.confirmed
+        db.session.add(self)
+        return True
+
     @property
     def password(self):
         raise AttributeError('password is not a readable')
@@ -34,6 +61,7 @@ class User(UserMixin,db.Model):
 
 class BSConfig(db.Model):
     __tablename__="BSConfig"
+    active = db.Column(db.Boolean, default=True)
     bsid = db.Column(db.Integer,primary_key=True)
     bsip1 = db.Column(db.String(64),unique=True)
     bsip2 = db.Column(db.String(64),unique=True)
@@ -87,9 +115,19 @@ class TrxConfig(db.Model):
                    c.name=="Channel" or
                    c.name=="AirRate" or
                    c.name=="TxPower" or
+                   c.name=="trxId" or
+                   c.name=="ssNum" or
+                   c.name=="trxPort" or
                    c.name=="SleepTime" }
         return d
     def __repr__(self):
         return '<Trx %s>'%self.trxId
 
-#class 
+class SSConfig(db.Model):
+    __tablename__="SSConfig" 
+    ssId = db.Column(db.Integer, primary_key=True)
+    ssIp = db.Column(db.String(64))
+    ss1 = db.Column(db.Integer,default=8000)
+    ss2 = db.Column(db.Integer,default=33)
+    def __repr__(self):
+        return '<SS %s>'%self.ssId

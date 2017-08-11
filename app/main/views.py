@@ -1,41 +1,68 @@
 #coding:UTF-8
 
 from flask import render_template, redirect, url_for,current_app,request
-from flask_login import login_required
+from flask_login import login_required,current_user
 from . import main
-from ..models import BSConfig,TrxConfig
-from ...config import config
+from ..models import BSConfig,TrxConfig,SSConfig
 import json
+from UDPSendRecv import *
 
 @main.route('/', methods=['GET','POST'])
 @login_required
 def index():
-    id =1 
-    bs = BSConfig.query.filter_by(bsid=id).first()     
-    return render_template('home.html')
-
-@main.route('/home', methods=['GET','POST'])
+    return render_template('index.html')
+# bsdata table
+@main.route('/basedata',methods=['GET', 'POST'])
 @login_required
-def home():
-    return render_template('home.html')
+def basedata2index():
+    #get basenum&its config info
+    BSNUM=BSConfig.query.filter_by(active=True).count()
+    u=BSConfig.query.filter_by(active=True).all()
+    key = ('id','num')
+    t = ((u[i].bsid,u[i].trxNum) for i in range(BSNUM))
+    d = [dict(zip(key,value)) for value in t]
+    print d
+            
+    #d= [{'num':'30','id':2},{'num':40,'id':3}]
+    print d
+    return json.dumps(d)
 
-@main.route('/home/data',methods = ['GET','POST'])
+'''@main.route()'''
+#base id & its data
+@main.route('/home/<bsid>', methods=['GET','POST'])
 @login_required
-def dataAjax():
-    bsconfig = BSConfig.query.filter_by(bsid=1).first()
-
-    #print(json.dumps(bsconfig.as_dict()))
-    return json.dumps(bsconfig.as_dict())
-
-
-
-@main.route('/channel', methods=['GET','POST'])
+def home(bsid):
+    id = int(bsid)
+    '''bs = BSConfig.query.filter_by(bsid=id).first()
+    if bs != None:
+        d=bs.as_dict()'''
+    return render_template('bs.html',bsid=id)
+#ajax refresh bs data
+@main.route('/home/data/<bsid>',methods = ['GET','POST'])
 @login_required
-def channel():
-    return render_template('channel.html')
+def getbsdataAjax(bsid):
+    id = int(bsid)
+    bsconfig = BSConfig.query.filter_by(bsid=id).first()
+    trxNum = TrxConfig.query.filter_by(bs_id=id).count()
+    trx = TrxConfig.query.filter_by(bs_id=id).all()
+    bsconfig.trxNum=trxNum
+    b=bsconfig.as_dict()
+    key=('trxid','ssnum')
+    t = ((trx[i].trxId,trx[i].ssNum) for i in range(trxNum))
+    d = [dict(zip(key,value)) for value in t]
+    d.append(b)
+    print d
+    return json.dumps({'bsid':4,"trxNum":100})
+
+
+
+@main.route('/home/<bsid>/<trxid>', methods=['GET','POST'])
+@login_required
+def home_trx(bsid,trxid):
+    return render_template('trx.html',bs=int(bsid),trx=int(trxid))
 
 #channel 
-@main.route('/channel/<channelname>', methods=['GET','POST'])
+@main.route('/home/<bsid>/<trxid>', methods=['GET','POST'])
 @login_required
 def channelname(channelname):
     if ( int(channelname) in range(1,7) ): 
@@ -107,9 +134,9 @@ def Configchannel(channelname):
         data=struct.pack(fmt,*v)
         print msg
         ret = UDPSendtoBS(current_app.config["LOCALADDR"],current_app.config["DESADDR"],msg)
-        if !ret:#send success
+        if not ret:#send success
             data,ret = UDPRecvfromBS(current_app.config["RECVADDR"])
-            if !ret:#recv success
+            if (not ret):#recv success
                 recvdata=struct.unpack(fmt,data)
                 for i in Rang(len(k)):
                     msg[key[i]]=recvdata[i]
@@ -127,17 +154,10 @@ def Configchannel(channelname):
 #config BS  for ajax get
 @main.route('/config_Base/<basename>',methods = ['GET','POST'])
 @login_required
-def GetChannelConfig(basename):
-    id = int(channelname)
-    db_trxconfig = TrxConfig.query.filter_by(trxId=int(channelname)).first()
-    if ( id in range(1,7)):
-        if 0:#ret=communicateToBS()
-            #
-            return json.dumps({"BaudRate":1,"Channel":0})
-        else:
-            print("-------")
-     #       print(json.dumps({"BaudRate":1,"Channel":0}))
-            return json.dumps({"BaudRate":1,"Channel":0})
+def ConfigBS(basename):
+    id = int(basename)
+    db_trxconfig = TrxConfig.query.filter_by(trxId=int(basename)).first()
+    return json.dumps({"BaudRate":1,"Channel":0})
 
 @main.route('/map', methods=['GET','POST'])
 @login_required
