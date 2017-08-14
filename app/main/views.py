@@ -61,7 +61,7 @@ def getbsdataAjax(bsid):
 def home_trx(bsid,trxid):
     return render_template('trx.html',bs=int(bsid),trx=int(trxid))
 
-#channel 
+#trx 
 @main.route('/home/<bsid>/<trxid>', methods=['GET','POST'])
 @login_required
 def channelname(channelname):
