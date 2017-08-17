@@ -28,6 +28,9 @@
 	h2{
 		margin:3% 0;
 	}
+	.nav-a{
+		padding:15px 8px !important;
+	}
 </style>
 </head>
 
@@ -42,13 +45,13 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand nav-text" href="#">Brand</a>
+      <a class="navbar-brand nav-text" href="/">Brand</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="nav-text"><a href="#">首页</a></li>
+		  <li class="nav-text"><a href="{{url_for('main.index')}}" class="nav-a">首页</a></li>
       </ul>
 	  {% if current_user.is_authenticate %}
 	  <ul class="nav navbar-nav right-float">
@@ -70,6 +73,9 @@
   		</div>
   		<div class="panel-body">
     		<br />欢迎访问web_manager，请从下面列表中选择您将访问的基站。<br /><br />
+			<button type="button" onclick="(function(){
+						 window.open('','_self');
+						 })();">添加基站</button>
   		</div>
 		<table class="table">
 			<tr>
@@ -92,11 +98,12 @@
 
 <script type="text/javascript">
 /*json数据格式：
-var txt = '{"package":['+
+var txt = '{"['+
 			'{"id":1,"num":10,"url":""},'+
 			'{"id":3,"num":14,"url":""},'+
-			'{"id":4,"num":14,"url":""}]}';*/
-//发送ajax请求
+			'{"id":4,"num":14,"url":""}]';
+ */
+//加载完页面后发送ajax请求，刷新基站列表
 var xmlhttp;
 if(window.XMLHttpRequest){
 	xmlhttp = new XMLHttpRequest();
@@ -124,7 +131,7 @@ xmlhttp.onreadystatechange = function(){
 			td[2].innerHTML = obj[i].num + document.getElementById('html_template').innerHTML;
 			td[2].getElementsByTagName("button")[0].onclick = function(num){
 				return function(){
-					url = window.location.href+"home/"+obj[num].id;
+					url = window.location.href+"bs/"+obj[num].id;
 					window.location = url;
 				}
 			}(i);
@@ -132,8 +139,7 @@ xmlhttp.onreadystatechange = function(){
 		}
 	}
 }
-
-url_t=location.href+"basedata";
+url_t=location.href+"index_data";
 xmlhttp.open("GET",url_t,true);
 xmlhttp.send();
 </script>

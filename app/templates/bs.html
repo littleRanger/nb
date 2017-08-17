@@ -14,13 +14,15 @@
 		float:right;
 	}
 	.nav-text{
-		font-size:1.2em;
+		font-size:1.1em;
 	}
 	.td-width{
 		width:23%;
 	}
-	.td-width-2{
+	.td-width2{
 		width:33%;
+		padding:8px;
+		border-bottom:1px solid #ccc;
 	}
 	.td-padding{
 		padding:0 4%;
@@ -34,6 +36,24 @@
 	.container{
 		margin:0 8%;
 		padding:0 0;
+	}
+	.config-right{
+		float:right;
+		width:24%;
+	}
+	.config-right-hide{
+		display:none;
+	}
+	.pop-show-left{
+		float:left;
+		width:72%;
+	}
+	.nav-a{
+		padding:15px 8px !important;
+	}
+	.config-btn{
+		border:0;
+		padding:0;
 	}
 </style>
 </head>
@@ -55,25 +75,61 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="nav-text"><a href="#">首页</a></li>
-        <li class="nav-text"><a href="#">>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基站--</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
-        <li class=""><a href="#">退出登录</a></li>
+		  {% if current_user.is_authenticated %}
+		  <li class=""><a href="{{url_for('auth.logout')}}">退出登录</a></li>
+		{% else %}
+		<li class=""><a href="{{url_for('auth.login')}}">登录</a></li>
+		{% endif %}
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 <div class="content">
+	<div class="config-right-hide" id="right">
+		<form action="" method="POST" class="form-horizontal">
+			<fieldset>
+			  <legend>基站模块</legend>
+			  <div class="form-group">
+				<label for="bps" class="col-sm-4 control-label">trxIp</label>
+				<div class="col-sm-6">
+				 <input type="text" class="form-control" id="bps" name="trxIp" value="192.168.1.61">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label for="bps" class="col-sm-4 control-label">trxIp</label>
+				<div class="col-sm-6">
+				 <input type="text" class="form-control" id="bps" name="trxIp" value="192.168.1.61">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label for="bps" class="col-sm-4 control-label">trxIp</label>
+				<div class="col-sm-6">
+				 <input type="text" class="form-control" id="bps" name="trxIp" value="192.168.1.61">
+				</div>
+			  </div>
+			</fieldset>
+		</form>
+	</div>
+  <div id="left">	
 	<div class="panel panel-default">
   		<!-- Default panel contents -->
- 		 <div class="panel-heading">当前通信状态</div>
+ 		 <div class="panel-heading">当前通信状态
+			 {% if current_user.is_admin %}
+		 	<button class="config-btn right-float" onclick="popConfig()">配置基站
+				<span class="glyphicon glyphicon-hand-right"></span>
+			</button>
+			{%endif%}
+		 </div>
  		 <div class="panel-body">
     		<table class="table-width">
 				<tr>
 					<td class="td-width">ulPacketTime</td>
 					<td class="td-width">--</td>
-					<td class="td-width td-padding  td-border">bsIp2</td>
+					<td class="td-width td-padding  td-border">bsIp</td>
 					<td class="td-padding">--</td>
 				</tr>
 				<tr>
@@ -85,14 +141,8 @@
 				<tr>
 					<td >dlPacketTime</td>
 					<td >--</td>
-					<td class="td-padding td-border">bsIp1</td>
+					<td class="td-padding td-border">bsPort</td>
 					<td class="td-padding">--</td>
-				</tr>
-				<tr>
-					<td >bsPort1</td>
-					<td >--</td>
-					<td class="td-padding td-border">bsPort2</td>
-					<td class="td-padding ">--</td>
 				</tr>
 				<tr>
 					<td >ulCompetitionSectionTime</td>
@@ -120,23 +170,62 @@
     		<h2 class="panel-title">通道</h2>
   		</div>
   		<div class="panel-body">
-    		<br />请从下面列表中选择您将访问的通道。(若您想重新选择访问基站，请返回首页。)<br /><br />
+    		<br />请从下面列表中选择您将访问的通道。(若您想重新选择访问基站，请返回上一级。)<br /><br />
+			<button type="button" onclick="(function(){
+						 window.open('','_self');
+						 })();">添加通道</button>
 			
   		</div>
 		<table class="table">
 			<tr>
-				<th class="td-width-2">#</th>
-				<th class="td-width-2">通道ID</th>
-				<th>终端数</th>
+				<th class="td-width2">#</th>
+				<th class="td-width2">通道ID</th>
+				<th class="td-width2">终端数</th>
 			</tr>
 		</table>
 	</div>
+  </div>
 </div>
+<script type="text/javascript">
+	function popConfig(){
+		var config_view = document.getElementById("right");
+		var show_view = document.getElementById("left");
+		if(config_view.className == "config-right-hide"){
+			config_view.className = "config-right";
+			show_view.className = "pop-show-left";
+			getConfig();
+		}else{
+			config_view.className = "config-right-hide";
+			show_view.className = "";
+		}
+	}
+	function getConfig(){
+		var xmlhttp;
+		if(window.XMLHttpRequest){
+			xmlhttp = new XMLHttpRequest();
+		}else{
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange = function(){
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+				var txt = xmlhttp.responseText;
+				var obj = eval("("+txt+")");
+				var form = document.getElementsByTagName("form")[0];
+				var inputs = [];
+				inputs = form.getElementsByTagName("input");
+				inputs[0].value =1;
+			}
+		}
+		var url = window.location + "/trx_cfg";
+		xmlhttp.open("GET",url,true);
+		xmlhttp.send();
+	}
+</script>
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
-			<button type="button" class="btn btn-default" onclick="">
-								<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
-										</button>
+	<button type="button" class="btn btn-default" onclick="">
+		<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+	</button>
 </div>
 </script>
 
@@ -149,41 +238,39 @@ if(window.XMLHttpRequest){
 }
 xmlhttp.onreadystatechange = function(){
 	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-		alert("c");
 		var txt = xmlhttp.responseText; 
-		alert(txt);
 		var obj = eval("("+txt+")");
 		var tr_num = obj.length;
-		alert(tr_num);
 		//数据处理
 		var bs_table0 = document.getElementsByTagName("table")[0];
-		alert(tr_num);
-		bs_table0.getElementsByTagName("td")[1].innerHTML = obj[tr_num-1].ulThroughout;
-		alert("a");
+		var tds0 = bs_table0.getElementsByTagName("td");
+		tds0[1].innerHTML = obj[tr_num-1].ulThroughout;	
+		tds0[11].innerHTML = obj[tr_num-1].Throughout;	
+		tds0[9].innerHTML = obj[tr_num-1].dlThroughout;
 		var bs_table1 = document.getElementsByTagName("table")[1];
-		alert("e");
 		for(var i = 0;i<tr_num-1;i++){
 			var tr = document.createElement("tr");
 			bs_table1.appendChild(tr);
 			var td = [];
 			for(var j = 0;j<3;j++){
 				td[j] = document.createElement("td");
-				td[j].className = "td-set";
+				td[j].className = "td-width2";
 				tr.appendChild(td[j]);
 			}
 			td[0].innerHTML = i+1;
-			td[1].innerHTML = obj[i].id;
-			td[2].innerHTML = obj[i].num + document.getElementById('html_template').innerHTML;
+			td[1].innerHTML = obj[i].trxid;
+			td[2].innerHTML = obj[i].ssnum + document.getElementById('html_template').innerHTML;
 			td[2].getElementsByTagName("button")[0].onclick = function(num){
 				return function(){
-				url = window.location.href + "home/"+obj[num].id
+				url = window.location.href +"/"+ obj[num].trxid
 				window.location = url;
 				}
 			}(i);
 		}
 	}
 }
-xmlhttp.open("GET","{{url_for('main.getbsdataAjax',bsid=bsid)}}",true);
+url_t=window.location.href+"/base_data"
+xmlhttp.open("GET",url_t,true);
 xmlhttp.send();
 </script>
 </body>

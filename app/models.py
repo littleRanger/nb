@@ -62,22 +62,22 @@ class User(UserMixin,db.Model):
 class BSConfig(db.Model):
     __tablename__="BSConfig"
     active = db.Column(db.Boolean, default=True)
-    bsid = db.Column(db.Integer,primary_key=True)
-    bsip1 = db.Column(db.String(64),unique=True)
-    bsip2 = db.Column(db.String(64),unique=True)
+    BSID = db.Column(db.Integer,primary_key=True)
+    BSIP1 = db.Column(db.String(64),unique=True)
+    BSIP2 = db.Column(db.String(64),unique=True)
     
     ulPacketTime = db.Column(db.Integer,default=400)
     ulPacketNum = db.Column(db.Integer)
     dlLogicSubFrameNum = db.Column(db.Integer, default=1)
     dlPacketTime = db.Column(db.Integer, default=300)
     
-    trxNum = db.Column(db.Integer)
-    bsPort1 = db.Column(db.Integer,default=8080)
-    bsPort2 = db.Column(db.Integer,default=8888)
+    TRXNum = db.Column(db.Integer,default=8)
+    BSPort1 = db.Column(db.Integer,default=8080)
+    BSPort2 = db.Column(db.Integer,default=8888)
     ulCompetitionSectionTime = db.Column(db.Integer,default=100)
     sin_family = db.Column(db.Integer)
     dlLogicSubFrameIdx = db.Column(db.Integer,default=1)
-    Trxs = db.relationship('TrxConfig',backref='bs')
+    TRXs = db.relationship('TRXConfig',backref='bs')
    
     Throughout = db.Column(db.Integer,default=800)
     ulThroughout = db.Column(db.Integer,default=400)
@@ -87,18 +87,19 @@ class BSConfig(db.Model):
         dict= {c.name:getattr(self,c.name) for c in self.__table__.columns if c.name=="Throughout" or c.name=="dlThroughout" or c.name=="ulThroughout" or c.name=="PacketMiss"}
         return dict
     def __repr__(self):
-        return '<BS %s>'%self.bsid
+        return '<BS %s>'%self.BSID
     
-class TrxConfig(db.Model):
+class TRXConfig(db.Model):
     __tablename__="TrxConfig" 
-    trxId = db.Column(db.Integer, primary_key=True)
-    trxIp = db.Column(db.String(64))
-    ssNum = db.Column(db.Integer)
-    trxPort = db.Column(db.Integer,default=8000)
-    trxTxPower = db.Column(db.Integer,default=33)
-    trxDataRate = db.Column(db.Integer,default=5)
-    trxFreq = db.Column(db.Integer , default=434)
-    bs_id = db.Column(db.Integer,db.ForeignKey(BSConfig.bsid))
+    TRXID = db.Column(db.Integer, primary_key=True)
+    TRXIP = db.Column(db.String(64))
+    SSNum = db.Column(db.Integer)
+    TRXPort = db.Column(db.Integer,default=8000)
+    TRXTxPower = db.Column(db.Integer,default=33)
+    TRXDataRate = db.Column(db.Integer,default=5)
+    TRXFreq = db.Column(db.Integer , default=434)
+    BS_ID = db.Column(db.Integer,db.ForeignKey(BSConfig.BSID))
+    SSs = db.relationship('SSConfig',backref='trx')
     
     BaudRate = db.Column(db.Integer , default=115200)
     ModeAddr = db.Column(db.Integer , default=4661)
@@ -115,19 +116,21 @@ class TrxConfig(db.Model):
                    c.name=="Channel" or
                    c.name=="AirRate" or
                    c.name=="TxPower" or
-                   c.name=="trxId" or
-                   c.name=="ssNum" or
-                   c.name=="trxPort" or
+                   c.name=="TRXId" or
+                   c.name=="SSNum" or
+                   c.name=="TRXPort" or
                    c.name=="SleepTime" }
         return d
     def __repr__(self):
-        return '<Trx %s>'%self.trxId
+        return '<Trx %s>'%self.TRXID
 
 class SSConfig(db.Model):
     __tablename__="SSConfig" 
-    ssId = db.Column(db.Integer, primary_key=True)
-    ssIp = db.Column(db.String(64))
-    ss1 = db.Column(db.Integer,default=8000)
-    ss2 = db.Column(db.Integer,default=33)
+    ssID   = db.Column(db.Integer, primary_key=True)
+    ssIP   = db.Column(db.String(64))
+    ssTxPower = db.Column(db.Integer,default=33)
+    ssDataRate = db.Column(db.Integer,default=33)
+    ssFreq = db.Column(db.Float,default=33)
+    TRX_ID = db.Column(db.Integer,db.ForeignKey(TRXConfig.TRXID))
     def __repr__(self):
-        return '<SS %s>'%self.ssId
+        return '<SS %s>'%self.SSID

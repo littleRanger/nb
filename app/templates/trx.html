@@ -17,6 +17,9 @@
 	.nav-text{
 		font-size:1.1em;
 	}
+	.nav-a{
+		padding:15px 8px !important;
+	}
 	.container{
 		margin:0 8%;
 		padding:0 0;
@@ -35,8 +38,10 @@
 	.td-width{
 		width:23%;
 	}
-	.td-width-2{
+	.td-width2{
 		width:33%;
+		padding:8px;
+		border-bottom:1px solid #ccc;
 	}
 	.td-padding{
 		padding:0 4%;
@@ -71,146 +76,99 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="nav-text"><a href="#">首页</a></li>
-        <li class="nav-text"><a href="#">>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基站--</a></li>
-		<li class="nav-text"><a href="#">>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;通道--</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.home',bsid=bs)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bs}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.home_trx',bsid=bs,trxid=trx)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trx}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
+		  {% if current_user.is_authenticated %}
         <li class=""><a href="#">退出登录</a></li>
+		{%else %}
+        <li class=""><a href="#">登录</a></li>
+		{%endif%}
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 <div class="content">
 	<div class="config-right-hide" id="right">
-		<form action="" method="GET" class="form-horizontal">
+		<form action="" method="POST" class="form-horizontal">
 			<fieldset>
 			  <legend>通道模块</legend>
 			  <div class="form-group">
-				<label for="bps" class="col-sm-4 control-label">trx1Ip</label>
+				<label for="bps" class="col-sm-4 control-label">trxIp</label>
 				<div class="col-sm-6">
-				 <input type="text" class="form-control" id="bps" name="bps" value="192.168.1.61">
+				 <input type="text" class="form-control" id="bps" name="trxIp" value="192.168.1.61">
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="address" class="col-sm-4 control-label">trx1Port</label>
+				<label for="address" class="col-sm-4 control-label">trxPort</label>
 				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="address" value="8000">
+				  <input type="text" class="form-control" name="trxPort" value="8000">
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="check" class="col-sm-4 control-label">trx1TxPower</label>
+				<label for="check" class="col-sm-4 control-label">trxTxPower</label>
 				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="check" value="33">
+				  <input type="text" class="form-control" name="trxTxPower" value="33">
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="channel" class="col-sm-4 control-label">trx2DataRate</label>
+				<label for="power" class="col-sm-4 control-label">trxDataRate</label>
 				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="channel" value="5">
+				  <input type="text" class="form-control" name="trxDataRate" value="5">
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="rate" class="col-sm-4 control-label">trx2Id</label>
+				<label for="sleepTime" class="col-sm-4 control-label">trxFreq</label>
 				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="rate" value="0xD0000002">
+				  <input type="text" class="form-control" name="trxFreq" value="434.0">
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="power" class="col-sm-4 control-label">trx1DataRate</label>
+				<label for="sleepTime" class="col-sm-4 control-label">trxId</label>
 				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="power" value="5">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx1Freq</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="434.0">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx1Id</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="0xD0000001">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx2TxPower</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="33">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx2Id</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="192.168.1.61">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx2Freq</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="434.0">
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trx2Port</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="sleepTime" value="8080">
+				  <input type="text" class="form-control" name="trxId" value="0xD0000001">
 				</div>
 			  </div>
 			  <div class="form-group">
 				<div class="col-sm-offset-4 col-sm-3">
-				  <button type="button" class="btn btn-default">配置参数</button>
+				  <button type="button" class="btn btn-default" onclick="ajaxSubmitForm()">配置参数</button>
 				</div>
 			  </div>
 			</fieldset>
 		</form>
+		<div id="resultDiv"></div>
 	</div>
 	
   <div id="left">
 	<div class="panel panel-default">
   		<!-- Default panel contents -->
  		 <div class="panel-heading">当前通信状态
+			 {% if current_user.is_admin %}
 		 	<button class="config-btn right-float" onclick="popConfig()">配置通道
 				<span class="glyphicon glyphicon-hand-right"></span>
 			</button>
+			{%endif%}
 		 </div>
  		  <div class="panel-body">
     		<table class="table-width">
 				<tr>
-					<td class="td-width">trx1Ip</td>
+					<td class="td-width">trxIp</td>
 					<td class="td-width">--</td>
-					<td class="td-width td-padding  td-border">trx1Port</td>
+					<td class="td-width td-padding  td-border">trxPort</td>
 					<td class="td-padding">--</td>
 				</tr>
 				<tr>
-					<td >trx1TxPower</td>
+					<td >trxTxPower</td>
 					<td >--</td>
-					<td class="td-padding td-border">trx2DataRate</td>
+					<td class="td-padding td-border">trxDataRate</td>
 					<td class="td-padding ">--</td>
 				</tr>
 				<tr>
-					<td >trx2Id</td>
+					<td >trxId</td>
 					<td >--</td>
-					<td class="td-padding td-border">trx1DataRate</td>
-					<td class="td-padding">--</td>
-				</tr>
-				<tr>
-					<td >trx1Freq</td>
-					<td >--</td>
-					<td class="td-padding td-border">trx1Id</td>
-					<td class="td-padding ">--</td>
-				</tr>
-				<tr>
-					<td >trx2TxPower</td>
-					<td >--</td>
-					<td class="td-padding td-border">trx2Id</td>
-					<td class="td-padding">--</td>
-				</tr>
-				<tr>
-					<td >trx2Freq</td>
-					<td >--</td>
-					<td class="td-padding td-border">trx2Port</td>
+					<td class="td-padding td-border">trxFreq</td>
 					<td class="td-padding">--</td>
 				</tr>
 			</table>
@@ -222,24 +180,17 @@
     		<h2 class="panel-title">终端</h2>
   		</div>
   		<div class="panel-body">
-    		<br />请从下面列表中选择您将访问的终端。(若您想重新选择访问基站 / 通道，请返回首页。)<br /><br />
+    		<br />请从下面列表中选择您将访问的终端。(若您想重新选择访问基站 / 通道，请返回首页 / 上一级。)<br /><br />
+			<button type="button" onclick="(function(){
+				window.open(window.location+'/addss','_self');
+			})()">添加终端
+			</button>
   		</div>
 		<table class="table">
 			<tr>
-				<th class="td-width-2">#</th>
-				<th class="td-width-2">ID</th>
-				<th>终端数</th>
-			</tr>
-			<tr>
-				<td>--</td>
-				<td>终端--</td>
-				<td>--
-					<div class="text-right right-float">
-				  		<button type="button" class="btn btn-default">
-							<span class="glyphicon glyphicon-zoom-in"></span>
-				  		</button>
-					</div>
-				</td>
+				<th class="td-width2">#</th>
+				<th class="td-width2">终端ID</th>
+				<th class="td-width2"></th>
 			</tr>
 		</table>
 	</div>
@@ -255,7 +206,42 @@
 		show_view.className = "pop-show-left";
 	}
 </script>
-
+<script type="text/javascript">
+//配置通道的button触发，点击时既弹出配置表单，又获得当前配置参数
+	function popConfig(){
+		var config_view = document.getElementById("right");
+		var show_view = document.getElementById("left");
+		if(config_view.className == "config-right-hide"){
+			config_view.className = "config-right";
+			show_view.className = "pop-show-left";
+			getConfig();
+		}else{
+			config_view.className = "config-right-hide";
+			show_view.className = "";
+		}
+	}
+	function getConfig(){
+		var xmlhttp;
+		if(window.XMLHttpRequest){
+			xmlhttp = new XMLHttpRequest();
+		}else{
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange = function(){
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+				var txt = xmlhttp.responseText;
+				var obj = eval("("+txt+")");
+				var form = document.getElementsByTagName("form")[0];
+				var inputs = [];
+				inputs = form.getElementsByTagName("input");
+				inputs[0].value =1;
+			}
+		}
+		var url = window.location + "/trx_cfg";
+		xmlhttp.open("GET",url,true);
+		xmlhttp.send();
+	}
+</script>
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
 		<button type="button" class="btn btn-default" onclick="">
@@ -277,38 +263,43 @@ xmlhttp.onreadystatechange = function(){
 		var obj = eval("("+txt+")");
 		var tr_num = obj.length;
 		//数据处理
-		var bs_table = document.getElementsByTagName("table")[0];
-		for(var i = 0;i<tr_num;i++){
+		var tables = document.getElementsByTagName("table");
+		var state_table = tables[0];
+		var tds = state_table.getElementsByTagName("td");
+		tds[1].innerHTML = obj[tr_num-1].trxIp;
+		var ss_table = tables[1];
+		for(var i = 0;i<tr_num-1;i++){
 			var tr = document.createElement("tr");
 			
-			bs_table.appendChild(tr);
+			ss_table.appendChild(tr);
 			var td = [];
 			for(var j = 0;j<3;j++){
 				td[j] = document.createElement("td");
-				td[j].className = "td-set";
+				td[j].className = "td-width2";
 				tr.appendChild(td[j]);
 			}
 			td[0].innerHTML = i+1;
-			td[1].innerHTML = obj[i].id;
-			td[2].innerHTML = obj[i].num + document.getElementById('html_template').innerHTML;
+			td[1].innerHTML = obj[i].ssid;
+			td[2].innerHTML = document.getElementById('html_template').innerHTML;
 			td[2].getElementsByTagName("button")[0].onclick = function(num){
 				return function(){
-					url = window.location.href + "home/"+obj[num].id
+					url = window.location.href + "/"+obj[num].id
 					window.location = url;
 				}
 			}(i);
 		}
 	}
 }
-xmlhttp.open("GET","",true);
+var url = window.location + "/data";
+xmlhttp.open("GET",url,true);
 xmlhttp.send();
 </script>
 
 <script type="text/javascript">
-//button触发
+//配置参数button触发
 function ajaxSubmitForm() {    
 	var form = document.forms[0];	
-	var elements = form.getELementsByTagName("input");// Enumeration the form elements            
+	var elements = form.getElementsByTagName("input");// Enumeration the form elements            
 	var element;            
 	var i;  
 	// Form contents need to submit          
@@ -337,9 +328,8 @@ function ajaxSubmitForm() {
 		 } else {                                  
 			 postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                
 		 }            
-	}            
-	alert(postContent);            
-	ajaxSubmit(form.action, form.method, postContent,resultDiv);            
+	}           	
+	ajaxSubmit(form.action, form.method, postContent,"resultDiv");            
 }            
  // url - the url to do submit            
  // method - "get" or "post"            
@@ -347,9 +337,9 @@ function ajaxSubmitForm() {
  // resultDivId - show the submit progress, submitting or finished    
  function ajaxSubmit(url, method, postContent, resultDivId){            
 	 //设置进度显示模块
-	 var resultDiv = document.getElementById('resultDivId');                                  
+	 var resultDiv = document.getElementById(resultDivId);                                  
 	 window.setTimeout(function () {                          
-		 resultDiv.innerText = "Submitting....";                       
+		 resultDiv.innerHTML = "Submitting....";                       
 		 resultDiv.style.display = "";              
 	 }, 1);                
            
@@ -364,10 +354,11 @@ function ajaxSubmitForm() {
 		 xmlhttp.onreadystatechange = function(){                                
 		 	// if xmlhttp shows "loaded"                                
 	    	 	if (xmlhttp.readyState==4){                                  
-				 resultDiv.innerHTML = "Submit finnished!"; 
+				 resultDiv.innerHTML = "Submit finished!"; 
 				 setTimeout("resultDiv.innerHTML = ''",3000);
 			 }                          
-	 	 };                   
+	 	 };
+		 var url = window.location + "/trx_cfg";
 		 if(method.toLowerCase() == "get") {                               
 			 xmlhttp.open("GET", url + "?" + postContent, true);                                 
 			 xmlhttp.send(null);                       
