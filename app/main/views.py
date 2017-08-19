@@ -7,7 +7,7 @@ from ..models import BSConfig,TRXConfig,SSConfig
 import json
 from UDPSendRecv import *
 from ..decorators import admin_required
-from .forms import SSForm
+from .forms import BaseForm,TrxForm,SSForm
 
 '''
 index
@@ -35,9 +35,26 @@ def page_index_data():#get basenum&its config info
 @main.route('/addbase', methods=['GET','POST'])
 @login_required
 def add_bs():
+    form = BaseForm()
+    if form.validate_on_submit():
+        a= request.form.to_dict()
+        print a
+#send to base
+
+#feedback
+
+#write to db 
+        return redirect(url_for('main.index'))
+    else:
+        return render_template('addbase.html',form=form)
 
 
-#base id & its data
+'''base page
+page    --- /bs/<bsid>  
+page's data ---/bs/<bsid>/base_data
+config base 
+add trx
+'''
 @main.route('/bs/<bsid>', methods=['GET','POST'])
 @login_required
 def bs(bsid):
@@ -57,7 +74,7 @@ def page_base_data(bsid):
     bsconfig.TRXNum=trxNum
     b=bsconfig.as_dict()
     key=('trxid','ssnum')
-    t = ((trx[i].TRXId,trx[i].SSNum) for i in range(trxNum))
+    t = ((trx[i].TRXID,trx[i].SSNum) for i in range(trxNum))
     d = [dict(zip(key,value)) for value in t]
     d.append(b)
     print d
@@ -72,33 +89,33 @@ trx config---pull cfg
           ---push cfg
 '''
 
-@main.route('/home/<bsid>/<trxid>', methods=['GET','POST'])
+@main.route('/bs/<bsid>/<trxid>', methods=['GET','POST'])
 @login_required
-def home_trx(bsid,trxid):
+def trx(bsid,trxid):
     return render_template('trx.html',bs=int (bsid),trx=int(trxid))
 
  
-@main.route('/home/<bsid>/<trxid>/data', methods=['GET','POST'])
+@main.route('/bs/<bsid>/<trxid>/data', methods=['GET','POST'])
 @login_required
 def trx_data(bsid,trxid):
     d=[{'ssid':550,},{'ssid':5690,},{'ssid':4565},{'trxIp':'192.168.1.156','trxPort':'8080'}]
     return json.dumps(d)
 
 #add ss 
-@main.route('/home/<bsid>/<trxid>/addss',methods = ['GET','POST'])
+@main.route('/bs/<bsid>/<trxid>/addss',methods = ['GET','POST'])
 @login_required
 def addss(bsid,trxid):
     bsid = int(bsid)
     trxid = int(trxid)
-    form = ssForm()
+    form = SSForm()
     if form.validate_on_submit():
         a= request.form.to_dict()
-        return redirect(url_for('main.home_trx',bsid=int(bsid),trxid=int(trxid)))
+        return redirect(url_for('main.trx',bsid=int(bsid),trxid=int(trxid)))
     else:
         return render_template('addss.html',form=form,bsid=bsid,trxid=trxid)
 
 #push,pull trx config
-@main.route('/home/<bsid>/<trxid>/trx_cfg',methods = ['GET','POST'])
+@main.route('/bs/<bsid>/<trxid>/trx_cfg',methods = ['GET','POST'])
 @login_required
 def PushTrxCfg(bsid,trxid):
     bsid = int(bsid)

@@ -50,8 +50,8 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
 		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bsid}}</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.trx',bsid=bsid,trxid=trxid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trxid}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.home',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bsid}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.home_trx',bsid=bsid,trxid=trxid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trxid}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
 		  {% if current_user.is_authenticated %}

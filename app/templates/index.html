@@ -74,7 +74,8 @@
   		<div class="panel-body">
     		<br />欢迎访问web_manager，请从下面列表中选择您将访问的基站。<br /><br />
 			<button type="button" onclick="(function(){
-						 window.open('','_self');
+						 url_t = window.location + 'addbase';
+						 window.open(url_t,'_self');
 						 })();">添加基站</button>
   		</div>
 		<table class="table">
