@@ -26,18 +26,20 @@ class BaseForm(FlaskForm):
             raise ValidationError('username already registered')
 
 class TrxForm(FlaskForm):
-    trx_name=StringField('TrxName',validators=[Required(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_]*$',0,'BaseName must have only letters,''numbers and underscores')])
+    bs_name=StringField('BaseName',validators=[Required(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_]*$',0,'BaseName must have only letters,''numbers and underscores')])
+    trx_name=StringField('TrxName',validators=[Required(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_]*$',0,'TrxName must have only letters,''numbers and underscores')])
     TRXIP=StringField('TRXIP',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
     
     TRXPort= IntegerField('TRXPort1', validators=[Required()])
     TRXTxPower=IntegerField('TRXTxPower',validators=[Required()])
     TRXDataRate =IntegerField('TRXDataRate',validators=[Required()])
     TRXFreq = FloatField('TRXFreq',validators=[Required()])
-    
-class SSForm(FlaskForm):
-    ssID=TextField('ssID',validators=[Required()])
-    ssIP=StringField('ssIP',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
-    ssTxPower=IntegerField('ssTxPower',validators=[Required()])
-    ssDataRate =IntegerField('ssDataRate',validators=[Required()])
-    ssFreq = FloatField('ssFreq',validators=[Required()])
+    def validate_trx_name(self.field):
+        bs=BSConfig.query.filter_by(bs_name=field.data)
 
+class SSForm(FlaskForm):
+    ss_name=TextField('ss_name',validators=[Required()])
+    ssIP=StringField('ssIP',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
+    
+    def validate_ss_name(self.field):
+        if SSconfig.query.filter_by

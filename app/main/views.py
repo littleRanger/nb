@@ -52,8 +52,9 @@ def add_bs():
 '''base page
 page    --- /bs/<bsid>  
 page's data ---/bs/<bsid>/base_data
-config base 
-add trx
+deploy base ---/bs/<bsid>/deploy_bscfg
+get basecfg ---/bs/<bsid>/get_bscfg
+add trx ---/bs/<bsid>/addtrx
 '''
 @main.route('/bs/<bsid>', methods=['GET','POST'])
 @login_required
@@ -79,6 +80,16 @@ def page_base_data(bsid):
     d.append(b)
     print d
     return json.dumps(d)
+
+@main.route('/bs/<bsid>/addtrx', methods = ['GET', 'POST'])
+@login_required
+def add_trx(bsid):
+    id = int(bsid)
+    bs = BSConfig.query.filter_by(BSID=id).first()
+    trxform = TRXForm(bs_name=bs.user_name)
+    if form.validate_on_submit():
+        
+
 
 '''
 trx url

@@ -61,10 +61,10 @@ class User(UserMixin,db.Model):
 
 class BSConfig(db.Model):
     __tablename__="BSConfig"
-    active = db.Column(db.Boolean, default=True)
-    bs_name = db.Column(db.String(64),unique=True) 
     BSID = db.Column(db.Integer,primary_key=True)
     
+    bs_name = db.Column(db.String(64),default=, unique=True) 
+    active = db.Column(db.Boolean, default=True)
     BSIP1 = db.Column(db.String(64),unique=True)
     BSIP2 = db.Column(db.String(64),unique=True)
     BSPort1 = db.Column(db.Integer,default=8080)
@@ -119,6 +119,7 @@ class TRXConfig(db.Model):
 
 class SSConfig(db.Model):
     __tablename__="SSConfig" 
+    ss_name = db.Column(db.String(64))
     SSID   = db.Column(db.Integer, primary_key=True)
     SSIP   = db.Column(db.String(64))
     SSGPS = db.Column(db.String(64))
