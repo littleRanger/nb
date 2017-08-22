@@ -3,3 +3,5 @@ app/*.pyc
 app/main/*.pyc
 app/auth/*.pyc
 venv/*
+migrate/*
+config.py
