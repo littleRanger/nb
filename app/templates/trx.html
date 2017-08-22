@@ -82,7 +82,7 @@
       </ul>
 	  <ul class="nav navbar-nav right-float">
 		  {% if current_user.is_authenticated %}
-        <li class=""><a href="#">退出登录</a></li>
+		  <li class=""><a href="{{url_for("auth.logout")}}">退出登录</a></li>
 		{%else %}
         <li class=""><a href="#">登录</a></li>
 		{%endif%}

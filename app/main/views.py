@@ -3,6 +3,7 @@
 from flask import render_template, redirect, url_for,current_app,request
 from flask_login import login_required,current_user
 from . import main
+from ..import db
 from ..models import BSConfig,TRXConfig,SSConfig
 import json
 from UDPSendRecv import *
@@ -25,11 +26,11 @@ def index():
 def page_index_data():#get basenum&its config info
     BSNUM=BSConfig.query.filter_by(active=True).count()
     u=BSConfig.query.filter_by(active=True).all()
-    key = ('id','num')
-    t = ((u[i].BSID,u[i].TRXNum) for i in range(BSNUM))
+    key = ('BS_ID', 'BS_Name','num')
+    t = ((u[i].BSID,u[i].bs_name, TRXConfig.query.filter_by(BS_ID=u[i].BSID).count()) for i in range(BSNUM))
     d = [dict(zip(key,value)) for value in t]
     #d= [{'num':'30','id':2},{'num':40,'id':3}]
-    print d
+    #print d
     return json.dumps(d)
 
 @main.route('/addbase', methods=['GET','POST'])
@@ -39,11 +40,27 @@ def add_bs():
     if form.validate_on_submit():
         a= request.form.to_dict()
         print a
-#send to base
+        #value check
 
-#feedback
+        #send to base
 
-#write to db 
+        #feedback
+
+        #write to db
+        newbs= BSConfig(bs_name=form.bs_name.data,
+                BSIP1=form.BSIP1.data,BSPort1=form.BSPort1.data, 
+                BSIP2=form.BSIP2.data, BSPort2=form.BSPort2.data, 
+                ulPacketTime = form.ulPacketTime.data,
+                ulPacketNum = form.ulPacketNum.data,
+                dlLogicSubFrameNum= form.dlLogicSubFrameNum.data,
+                dlLogicSubFrameIdx= form.dlLogicSubFrameIdx.data,
+                dlPacketTime= form.dlPacketTime.data,
+                ulCompetitionSectionTime = form.ulCompetitionSectionTime.data,
+                sin_family = form.sin_family.data,
+                #TRXNum = form.TRXNum.data\
+                )
+        db.session.add(newbs)
+        db.session.commit()
         return redirect(url_for('main.index'))
     else:
         return render_template('addbase.html',form=form)
@@ -72,13 +89,13 @@ def page_base_data(bsid):
     bsconfig = BSConfig.query.filter_by(BSID=id).first()
     trxNum = TRXConfig.query.filter_by(BS_ID=id).count()
     trx = TRXConfig.query.filter_by(BS_ID=id).all()
-    bsconfig.TRXNum=trxNum
-    b=bsconfig.as_dict()
-    key=('trxid','ssnum')
-    t = ((trx[i].TRXID,trx[i].SSNum) for i in range(trxNum))
+    bscfg=bsconfig.as_dict()
+    key=('trxid', 'trx_name','ssnum')
+    t = ((trx[i].TRXID, trx[i].trx_name, SSConfig.query.filter_by(TRX_ID=trx[i].TRXID).count()) for i in range(trxNum))
     d = [dict(zip(key,value)) for value in t]
-    d.append(b)
+    d.append(bscfg)
     print d
+    p= [{'num':'30','id':2},{'num':40,'id':3}]
     return json.dumps(d)
 
 @main.route('/bs/<bsid>/addtrx', methods = ['GET', 'POST'])
@@ -86,9 +103,37 @@ def page_base_data(bsid):
 def add_trx(bsid):
     id = int(bsid)
     bs = BSConfig.query.filter_by(BSID=id).first()
-    trxform = TRXForm(bs_name=bs.user_name)
+    '''trx1=TRXConfig(trx_name = 'trx1',TRXIP='192.168.1.10',TRXPort=8000,TRXTxPower = 500, TRXDataRate=805,TRXFreq = 600,BS_ID=id)
+    trx2=TRXConfig(trx_name = 'trx2',TRXIP='192.168.1.11',TRXPort=8060,TRXTxPower = 520, TRXDataRate=805,TRXFreq = 600,BS_ID=id)
+    trx3=TRXConfig(trx_name = 'trx3',TRXIP='192.168.1.12',TRXPort=8080,TRXTxPower = 540, TRXDataRate=805,TRXFreq = 600,BS_ID=id)
+    trx4=TRXConfig(trx_name = 'trx4',TRXIP='192.168.1.13',TRXPort=8088,TRXTxPower = 560, TRXDataRate=805,TRXFreq = 600,BS_ID=id)
+    db.session.add(trx1)
+    db.session.add(trx2)
+    db.session.add(trx3)
+    db.session.add(trx4)
+    db.session.commit()
+    return "aa"
+    '''
+    form = TrxForm()
     if form.validate_on_submit():
-        
+        print "a"
+        #value test
+        if 1:
+            pass
+        #send to bs
+        #write to db
+        trx = TRXConfig(trx_name=form.trx_name.data,
+                TRXIP       = form.TRXIP.data,
+                TRXPort     = form.TRXPort.data,
+                TRXTxPower  = form.TRXTxPower.data,
+                TRXDataRate = form.TRXDataRate.data,
+                TRXFreq     = form.TRXFreq.data,
+                BS_ID       = id)
+        db.session.add(trx)
+        db.session.commit()
+        return redirect(url_for('main.bs', bsid=bsid))
+    else:
+        return render_template('addtrx.html',bsid=bsid,form=form)
 
 
 '''

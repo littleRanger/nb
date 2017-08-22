@@ -80,8 +80,8 @@
   		</div>
 		<table class="table">
 			<tr>
-				<th class="td-set">#</th>
 				<th class="td-set">基站ID</th>
+				<th class="td-set">基站Name</th>
 				<th class="td-set">通道数</th>
 			</tr>
 		</table>
@@ -100,9 +100,7 @@
 <script type="text/javascript">
 /*json数据格式：
 var txt = '{"['+
-			'{"id":1,"num":10,"url":""},'+
-			'{"id":3,"num":14,"url":""},'+
-			'{"id":4,"num":14,"url":""}]';
+			'{"BS_ID":1,"BS_Name""num":10,"url":""},'+
  */
 //加载完页面后发送ajax请求，刷新基站列表
 var xmlhttp;
@@ -122,17 +120,17 @@ xmlhttp.onreadystatechange = function(){
 			var tr = document.createElement("tr");
 			bs_table.appendChild(tr);
 			var td = [];
-			for(var j = 0;j<3;j++){
+			for(var j = 0;j<4;j++){
 				td[j] = document.createElement("td");
 				td[j].className = "td-set";
 				tr.appendChild(td[j]);
 			}
-			td[0].innerHTML = i+1;
-			td[1].innerHTML = obj[i].id;
+			td[0].innerHTML = obj[i].BS_ID;
+			td[1].innerHTML = obj[i].BS_Name;
 			td[2].innerHTML = obj[i].num + document.getElementById('html_template').innerHTML;
 			td[2].getElementsByTagName("button")[0].onclick = function(num){
 				return function(){
-					url = window.location.href+"bs/"+obj[num].id;
+					url = window.location.href+"bs/"+obj[num].BS_ID;
 					window.location = url;
 				}
 			}(i);

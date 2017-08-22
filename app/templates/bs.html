@@ -172,15 +172,15 @@
   		<div class="panel-body">
     		<br />请从下面列表中选择您将访问的通道。(若您想重新选择访问基站，请返回上一级。)<br /><br />
 			<button type="button" onclick="(function(){
-						 url_t = window.location+"addtrx";
-						 window.open(url,'_self');
+						 url_t = window.location+'/addtrx';
+						 window.open(url_t,'_self');
 						 })();">添加通道</button>
 			
   		</div>
 		<table class="table">
 			<tr>
-				<th class="td-width2">#</th>
 				<th class="td-width2">通道ID</th>
+				<th class="td-width2">通道Name</th>
 				<th class="td-width2">终端数</th>
 			</tr>
 		</table>
@@ -258,8 +258,8 @@ xmlhttp.onreadystatechange = function(){
 				td[j].className = "td-width2";
 				tr.appendChild(td[j]);
 			}
-			td[0].innerHTML = i+1;
-			td[1].innerHTML = obj[i].trxid;
+			td[0].innerHTML = obj[i].trxid;
+			td[1].innerHTML = obj[i].trx_name;
 			td[2].innerHTML = obj[i].ssnum + document.getElementById('html_template').innerHTML;
 			td[2].getElementsByTagName("button")[0].onclick = function(num){
 				return function(){

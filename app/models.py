@@ -63,10 +63,10 @@ class BSConfig(db.Model):
     __tablename__="BSConfig"
     BSID = db.Column(db.Integer,primary_key=True)
     
-    bs_name = db.Column(db.String(64),default=, unique=True) 
+    bs_name = db.Column(db.String(64), unique=True) 
     active = db.Column(db.Boolean, default=True)
-    BSIP1 = db.Column(db.String(64),unique=True)
-    BSIP2 = db.Column(db.String(64),unique=True)
+    BSIP1 = db.Column(db.String(64))
+    BSIP2 = db.Column(db.String(64))
     BSPort1 = db.Column(db.Integer,default=8080)
     BSPort2 = db.Column(db.Integer,default=8888)
     BSGPS = db.Column(db.String(64)) 
