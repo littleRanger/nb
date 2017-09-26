@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
+    {% import "bootstrap/wtf.html" as wtf %}
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>通道</title>
@@ -33,13 +34,13 @@
 	}
 	.pop-show-left{
 		float:left;
-		width:72%;
+		width:75%;
 	}
 	.td-width{
 		width:23%;
 	}
 	.td-width2{
-		width:33%;
+		width:50%;
 		padding:8px;
 		border-bottom:1px solid #ccc;
 	}
@@ -56,6 +57,10 @@
 		border:0;
 		padding:0;
 	}
+    .form_trx{
+        position: absolute;
+        right: 15px;
+    }
 </style>
 </head>
 
@@ -92,52 +97,55 @@
 </nav>
 <div class="content">
 	<div class="config-right-hide" id="right">
-		<form action="" method="POST" class="form-horizontal">
-			<fieldset>
-			  <legend>通道模块</legend>
+		  <form class="form-horizontal" method="post" action="/bs/{{bs}}/{{ trx }}/push_trxcfg" >
+			  <fieldset>
+			  <legend>配置通道</legend>
 			  <div class="form-group">
-				<label for="bps" class="col-sm-4 control-label">trxIp</label>
-				<div class="col-sm-6">
-				 <input type="text" class="form-control" id="bps" name="trxIp" value="192.168.1.61">
+				<label for="inputEmail3" class="col-sm-4 control-label">编号</label>
+				<div class="col-sm-8">
+                    <input type="text" class="form-control" id="1"  /> <span id="s1">none</span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="address" class="col-sm-4 control-label">trxPort</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="trxPort" value="8000">
+				<label for="inputPassword3" class="col-sm-4 control-label">IP</label>
+				<div  class="col-sm-8">
+				  <input type="text" class="form-control" id="2" /><span id="s2">none</span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="check" class="col-sm-4 control-label">trxTxPower</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="trxTxPower" value="33">
+				<label for="inputPassword3" class="col-sm-4 control-label">端口号</label>
+				<div id="d1" class="col-sm-8">
+				  <input type="text" class="form-control" id="3"  autocomplete="off" onblur="validate()"/><span id="s" >none</span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="power" class="col-sm-4 control-label">trxDataRate</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="trxDataRate" value="5">
+				<label for="inputPassword3" class="col-sm-4 control-label">发送功率</label>
+				<div class="col-sm-8">
+				  <input type="text" class="form-control" id="4"  autocomplete="off" onblur="validate()"/><span>none</span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trxFreq</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="trxFreq" value="434.0">
+				<label for="inputPassword3" class="col-sm-4 control-label">传输速率</label>
+				<div class="col-sm-8">
+				  <input type="text" class="form-control" id="5"  autocomplete="off" onblur="validate()"/><span>none</span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="sleepTime" class="col-sm-4 control-label">trxId</label>
-				<div class="col-sm-6">
-				  <input type="text" class="form-control" name="trxId" value="0xD0000001">
+				<label for="inputPassword3" class="col-sm-4 control-label">频率</label>
+				<div class="col-sm-8">
+				  <input type="text" class="form-control" id="6"  autocomplete="off" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<div class="col-sm-offset-4 col-sm-3">
-				  <button type="button" class="btn btn-default" onclick="ajaxSubmitForm()">配置参数</button>
+				<div class="col-sm-offset-4 col-sm-4">
+				  <button id="submitform" type="submit" class="btn btn-default form-control">submit</button>
+				</div>
+				<div class="col-sm-4 right-float">
+				  <button type="reset" class="btn btn-default form-control">reset</button>
 				</div>
 			  </div>
-			</fieldset>
-		</form>
+			  </fieldset>
+		  </form>
 		<div id="resultDiv"></div>
 	</div>
 	
@@ -154,19 +162,19 @@
  		  <div class="panel-body">
     		<table class="table-width">
 				<tr>
-					<td class="td-width">trxIp</td>
+					<td class="td-width">TRX-Name</td>
 					<td class="td-width">--</td>
-					<td class="td-width td-padding  td-border">trxPort</td>
+					<td class="td-width td-padding  td-border">TRXTxPower</td>
 					<td class="td-padding">--</td>
 				</tr>
 				<tr>
-					<td >trxTxPower</td>
+					<td >TRXIP</td>
 					<td >--</td>
 					<td class="td-padding td-border">trxDataRate</td>
 					<td class="td-padding ">--</td>
 				</tr>
 				<tr>
-					<td >trxId</td>
+					<td >TRXPort</td>
 					<td >--</td>
 					<td class="td-padding td-border">trxFreq</td>
 					<td class="td-padding">--</td>
@@ -188,9 +196,8 @@
   		</div>
 		<table class="table">
 			<tr>
-				<th class="td-width2">#</th>
-				<th class="td-width2">终端ID</th>
-				<th class="td-width2"></th>
+				<th class="td-width2">SS-Name</th>
+				<th class="td-width2">SS-IP</th>
 			</tr>
 		</table>
 	</div>
@@ -201,31 +208,22 @@
 <script type="text/javascript">
 	function popConfig(){
 		var config_view = document.getElementById("right");
-		config_view.className = "config-right";
-		var show_view = document.getElementById("left");
-		show_view.className = "pop-show-left";
-	}
-</script>
-<script type="text/javascript">
-//配置通道的button触发，点击时既弹出配置表单，又获得当前配置参数
-	function popConfig(){
-		var config_view = document.getElementById("right");
 		var show_view = document.getElementById("left");
 		if(config_view.className == "config-right-hide"){
 			config_view.className = "config-right";
 			show_view.className = "pop-show-left";
-			getConfig();
+			//getConfig();
 		}else{
 			config_view.className = "config-right-hide";
 			show_view.className = "";
 		}
 	}
-	function getConfig(){
+	function pulltrxcfg(){
 		var xmlhttp;
 		if(window.XMLHttpRequest){
 			xmlhttp = new XMLHttpRequest();
-		}else{
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}else{
+		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 		}
 		xmlhttp.onreadystatechange = function(){
 			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
@@ -233,11 +231,16 @@
 				var obj = eval("("+txt+")");
 				var form = document.getElementsByTagName("form")[0];
 				var inputs = [];
-				inputs = form.getElementsByTagName("input");
-				inputs[0].value =1;
+                inputs = form.getElementsByTagName("input");
+				inputs[1].value =obj.trx_name;//BSName
+				inputs[2].value =obj.TRXIP;//BSIP1
+				inputs[3].value =obj.TRXPort;//BSPort1
+				inputs[4].value =obj.TRXTxPower;//BSIP2
+				inputs[5].value =obj.TRXDataRate;//
+				inputs[6].value =obj.TRXFreq;//
 			}
 		}
-		var url = window.location + "/trx_cfg";
+		var url = window.location + "/pull_trxcfg";
 		xmlhttp.open("GET",url,true);
 		xmlhttp.send();
 	}
@@ -251,125 +254,94 @@
 </script>
 
 <script type="text/javascript">
-var xmlhttp;
-if(window.XMLHttpRequest){
-	xmlhttp = new XMLHttpRequest();
-}else{
-	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-}
-xmlhttp.onreadystatechange = function(){
-	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-		var txt = xmlhttp.responseText; 
-		var obj = eval("("+txt+")");
+    $(document).ready(function () {
+        var url = window.location + "/data";
+        $.get(url, function (response) {
+		var obj = eval("("+response+")");
 		var tr_num = obj.length;
 		//数据处理
 		var tables = document.getElementsByTagName("table");
 		var state_table = tables[0];
 		var tds = state_table.getElementsByTagName("td");
-		tds[1].innerHTML = obj[tr_num-1].trxIp;
+		tds[11].innerHTML = obj[tr_num-1].TRXFreq;
+		tds[9].innerHTML = obj[tr_num-1].TRXPort;
+		tds[3].innerHTML = obj[tr_num-1].TRXTxPower;
+		tds[7].innerHTML = obj[tr_num-1].TRXDataRate;
+		tds[5].innerHTML = obj[tr_num-1].TRXIP;
+		tds[1].innerHTML = obj[tr_num-1].trx_name;
 		var ss_table = tables[1];
-		for(var i = 0;i<tr_num-1;i++){
-			var tr = document.createElement("tr");
-			
-			ss_table.appendChild(tr);
-			var td = [];
-			for(var j = 0;j<3;j++){
-				td[j] = document.createElement("td");
-				td[j].className = "td-width2";
-				tr.appendChild(td[j]);
-			}
-			td[0].innerHTML = i+1;
-			td[1].innerHTML = obj[i].ssid;
-			td[2].innerHTML = document.getElementById('html_template').innerHTML;
-			td[2].getElementsByTagName("button")[0].onclick = function(num){
-				return function(){
-					url = window.location.href + "/"+obj[num].id
-					window.location = url;
-				}
-			}(i);
-		}
-	}
-}
-var url = window.location + "/data";
-xmlhttp.open("GET",url,true);
-xmlhttp.send();
-</script>
+		for(var i = 0;i<tr_num-1;i++) {
+            var tr = document.createElement("tr");
 
-<script type="text/javascript">
-//配置参数button触发
-function ajaxSubmitForm() {    
-	var form = document.forms[0];	
-	var elements = form.getElementsByTagName("input");// Enumeration the form elements            
-	var element;            
-	var i;  
-	// Form contents need to submit          
-	var postContent = "";           
-	for(i=0;i<elements.length;++i) {                    
-		 var element=elements[i];            
-		 if(element.type=="text" || element.type=="textarea" || element.type=="hidden") {            
-			postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";            
-		 }            
-		 else if(element.type=="select-one"||element.type=="select-multiple") {            
-			 var options=element.options,j,item;            
-			 for(j=0;j<options.length;++j){            
-				 item=options[j];            
-				 if(item.selected) {                    
-					postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(item.value) + "&";                            
-				 }            
-			 }            
-		 } else if(element.type=="checkbox"||element.type=="radio") {            
-			 if(element.checked) {                            
-				 postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                         
-			 }                  
-		 } else if(element.type=="file") {                          
-			 if(element.value != "") {                                  
-				postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                         
-			 }                  
-		 } else {                                  
-			 postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                
-		 }            
-	}           	
-	ajaxSubmit(form.action, form.method, postContent,"resultDiv");            
-}            
- // url - the url to do submit            
- // method - "get" or "post"            
- // postContent - the string with values to be submited            
- // resultDivId - show the submit progress, submitting or finished    
- function ajaxSubmit(url, method, postContent, resultDivId){            
-	 //设置进度显示模块
-	 var resultDiv = document.getElementById(resultDivId);                                  
-	 window.setTimeout(function () {                          
-		 resultDiv.innerHTML = "Submitting....";                       
-		 resultDiv.style.display = "";              
-	 }, 1);                
-           
-	 if (window.XMLHttpRequest){                          
-	 	xmlhttp=new XMLHttpRequest();             
-	 }                                
-	 else if (window.ActiveXObject){
-		 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");                   
-	 }
-	 
-	 if(xmlhttp) {                     
-		 xmlhttp.onreadystatechange = function(){                                
-		 	// if xmlhttp shows "loaded"                                
-	    	 	if (xmlhttp.readyState==4){                                  
-				 resultDiv.innerHTML = "Submit finished!"; 
-				 setTimeout("resultDiv.innerHTML = ''",3000);
-			 }                          
-	 	 };
-		 var url = window.location + "/trx_cfg";
-		 if(method.toLowerCase() == "get") {                               
-			 xmlhttp.open("GET", url + "?" + postContent, true);                                 
-			 xmlhttp.send(null);                       
-		 } else if(method.toLowerCase() == "post") {   
-			 xmlhttp.open("POST", url, true);   
-			 xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");   
-			 xmlhttp.send(postContent);     
-		 }            
-	 } else {    
-		 resultDiv.innerHTML = "Can't create XMLHttpRequest object, please check your web browser.";    
-	 }       
- }
+            ss_table.appendChild(tr);
+            var td = [];
+            for (var j = 0; j < 2; j++) {
+                td[j] = document.createElement("td");
+                td[j].className = "td-width2";
+                tr.appendChild(td[j]);
+            }
+            td[0].innerHTML = obj[i].ss_name;
+            td[1].innerHTML = obj[i].ssip;
+        }
+       });
+        $("#submitform").attr("disabled","disabled");
+        $("input").blur(function () {
+                var v1=$("#1").val();
+                var v2=$("#2").val();
+                if(v1==""|v2==""){
+                            $("#submitform").attr("disabled","disabled");
+
+                }
+                else{
+                    $.post("/bs/{{ bs }}/{{ trx }}/push_trxcfg_DataCheck", {
+                         trx_name:$("#1").val(),
+                         TRXIP:$("#2").val()
+                      },
+                        function (data, status) {
+                             if(status=="success"){
+                                 var obj = eval("("+data+")");
+                                 if(obj.trx_name==0){
+                                    $("#s1").text("ok");
+                                    $("#s1").css("color","#a4ff3c");
+                                    $("#1").css("background-color","#bd1ff89");
+                                 }
+                                 else if(obj.trx_name==2){
+                                    $("#s1").text("trxname has existed!");
+                                    $("#s1").css("color","red");
+                                 }
+                                 if(obj.TRXIP==0){
+                                    $("#s2").text("ok");
+                                    $("#s2").css("color","#a4ff3c");
+                                    $("#2").css("background-color","#bdff89");
+                                 }
+                                 else if(obj.TRXIP==2){
+                                    $("#s2").text("trxIP has existed!");
+                                    $("#s2").css("color","red");
+                                 }
+                                 if(obj.trx_name ==0 & obj.TRXIP==0){
+                                    $("#submitform").removeAttr("disabled");
+                                 }
+
+                             }
+                            else {
+                                 alert("transmit failed!");
+                            }
+                        })
+
+
+
+                }
+        })
+
+    });
+
+
+		//	td[2].innerHTML = document.getElementById('html_template').innerHTML;
+		//	td[2].getElementsByTagName("button")[0].onclick = function(num){
+		//		return function(){
+		//			url = window.location.href + "/"+obj[num].id;
+		//			window.location = url;
+		//		}
+		//	}(i);
 </script>
 </html>

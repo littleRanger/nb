@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>map</title>
+<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+<script src="/static/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/baidumapv2/baidumap_offline_v2_load.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/baidumapv2/css/baidu_map_v2.css"/>
+<style type="text/css">
+	.nav_label{
+		margin-left:5%}
+	#dropdown_1{
+		overflow:auto;
+		height:150px;}
+	.map{
+		width:100%;
+		height:400px;}
+</style>
+</head>
+
+<body>
+<div class="map">
+
+</div>
+
+
+
+<script type="text/javascript">  
+// 百度地图API功能
+	alert("a");
+	var map = new BMap.Map("map_demo");
+	var point = new BMap.Point(121.42655,31.224895);
+	map.centerAndZoom(point, 15);
+	map.enableScrollWheelZoom();
+	window.weidu  = 31.224895;
+	window.jingdu = 121.42655;
+	window.gpsFlag = 0;
+	window.repeateFlag = 0;
+	window.reloadInterval = 2000;
+    var pi = 3.14159265358979324;
+    var aa = 6378245.0;
+    var ee = 0.00669342162296594323;
+    var x_pi = 3.14159265358979324*3000.0/180.0;
+
+	//世界大地坐标转为百度坐标
+function wgs2bd(lat,lon) {
+    var wgs2gcjR = wgs2gcj(lat, lon);
+    var gcj2bdR = gcj2bd(wgs2gcjR[0], wgs2gcjR[1]);
+    return gcj2bdR;
+}
+
+function gcj2bd(lat,lon) {
+    var x = lon, y = lat;
+    var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+    var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+    var bd_lon = z * Math.cos(theta) + 0.0065;
+    var bd_lat = z * Math.sin(theta) + 0.004;
+    var result = [];
+    result.push(bd_lat);
+    result.push(bd_lon);
+    return result;
+}
+
+function bd2gcj(lat,lon) {
+    var x = lon - 0.0065, y = lat - 0.006;
+    var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+    var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+    var gg_lon = z * Math.cos(theta);
+    var gg_lat = z * Math.sin(theta);
+    var result = [];
+    result.push(gg_lat);
+    result.push(gg_lon);
+    return result;
+}
+
+function wgs2gcj(lat,lon) {
+    var dLat = transformLat(lon - 105.0, lat - 35.0);
+    var dLon = transformLon(lon - 105.0, lat - 35.0);
+    var radLat = lat / 180.0 * pi;
+    var magic = Math.sin(radLat);
+    magic = 1 - ee * magic * magic;
+    var sqrtMagic = Math.sqrt(magic);
+    dLat = (dLat * 180.0) / ((aa * (1 - ee)) / (magic * sqrtMagic) * pi);
+    dLon = (dLon * 180.0) / (aa / sqrtMagic * Math.cos(radLat) * pi);
+    var mgLat = lat + dLat;
+    var mgLon = lon + dLon;
+    var result = [];
+    result.push(mgLat);
+    result.push(mgLon);
+    return result;
+}
+
+function transformLat(lat,lon) {
+    var ret = -100.0 + 2.0 * lat + 3.0 * lon + 0.2 * lon * lon + 0.1 * lat * lon + 0.2 * Math.sqrt(Math.abs(lat));
+    ret += (20.0 * Math.sin(6.0 * lat * pi) + 20.0 * Math.sin(2.0 * lat * pi)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(lon * pi) + 40.0 * Math.sin(lon / 3.0 * pi)) * 2.0 / 3.0;
+    ret += (160.0 * Math.sin(lon / 12.0 * pi) + 320 * Math.sin(lon * pi  / 30.0)) * 2.0 / 3.0;
+    return ret;
+}
+
+function transformLon(lat,lon) {
+    var ret = 300.0 + lat + 2.0 * lon + 0.1 * lat * lat + 0.1 * lat * lon + 0.1 * Math.sqrt(Math.abs(lat));
+    ret += (20.0 * Math.sin(6.0 * lat * pi) + 20.0 * Math.sin(2.0 * lat * pi)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(lat * pi) + 40.0 * Math.sin(lat / 3.0 * pi)) * 2.0 / 3.0;
+    ret += (150.0 * Math.sin(lat / 12.0 * pi) + 300.0 * Math.sin(lat / 30.0 * pi)) * 2.0 / 3.0;
+    return ret;
+}
+
+function loadXMLDoc()
+{
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    var text =xmlhttp.responseText;
+
+    // var k = text.substring(0,12);
+    // var b = text.substring(13,24);
+    var k = text.split("H");
+    
+      // window.weidu = parseFloat(k[1]);
+      // window.jingdu = parseFloat(k[0]);
+      //  window.gpsFlag = parseFloat(k[2]);
+       
+      // 0.0944536,8
+     
+     rsLength = (k.length-1) / 4;
+     rs = new Array(rsLength); 
+     for (var i = 0; i < rsLength; i++)
+     {
+     	rs[i] = new Array(6);
+     	var rslatInt = parseInt(k[i*4]);
+     	var rslonInt = parseInt(k[i*4+1]);
+     	var rslatFloat = parseFloat(k[i*4]);
+     	var rslonFloat = parseFloat(k[i*4+1]);
+     	var rslat = (rslatFloat - rslatInt) * 100 / 60 + rslatInt;
+     	var rslon = (rslonFloat - rslonInt) * 100 / 60 + rslonInt;
+     	if(parseFloat(k[i*4+2]) == 1)
+     	{
+     		rs[i][0] = wgs2bd(rslat, rslon)[0];
+     		rs[i][1] = wgs2bd(rslat, rslon)[1];
+     		// document.write(rs[i][0],rs[i][1]);
+     	}
+     	else
+     	{
+     	    rs[i][0] = wgs2bd(rslat, rslon)[0];
+     		rs[i][1] = wgs2bd(rslat, rslon)[1];
+     	}
+     	rs[i][2] = parseFloat(k[i*4+2]);
+     	rs[i][3] = parseFloat(k[i*4+3]);
+     	rs[i][4] = 8;
+     	rs[i][5] = 1;
+     }
+      
+      showStars(rs);
+         
+    }
+  }
+xmlhttp.open("GET","/GpsInfo",true);
+xmlhttp.send();
+}
+reloadInterval = parseFloat(5)* 1000; 
+window.onload=setInterval(loadXMLDoc, reloadInterval);
+
+
+		if (document.createElement('canvas').getContext) {
+			var  mapStyle ={ 
+					features: ["road", "building","water","land"],//隐藏地图上的poi
+					style : "normal"  //设置地图风格为高端黑
+				}
+			map.setMapStyle(mapStyle);
+            var change = 0;
+			var BW            = 0,    //canvas width
+				BH            = 0,    //canvas height
+				ctx           = null,
+				stars         = [],   //存储所有星星对象的数组
+				timer         = null, //定时器
+				timeLine      = null, //时间轴对象
+				rs            = [],   //最新的结果
+				isNowTimeData = false, //是否显示当前时间的定位情况
+				py            = null, //偏移
+				gridWidth     = 10000,//网格的大小
+				isOverlay     = false,//是否叠加
+				//gridWidth   = 1,//网格的大小
+				canvas        = null; //偏移
+
+			function Star(options){
+				this.init(options);
+			}
+
+			Star.prototype.init = function(options) {
+				this.x   = ~~(options.x);
+				this.y   = ~~(options.y);
+				this.gpsFlag = ~~(options.gpsFlag);
+				this.communicateFlag = ~~(options.communicateFlag);
+				this.initSize(options.size);
+				this.repeateFlag = ~~(options.repeateFlag);
+				if (~~(0.5 + Math.random() * 7) == 1) {
+					this.size = 0;
+				} else {
+					this.size = this.maxSize;
+				}
+			}
+
+			Star.prototype.initSize = function(size) {
+				var size = ~~(size);
+				this.maxSize = size > 100 ? 100 : size;
+			}
+
+			Star.prototype.render = function(i) {
+					var p = this;
+
+					if(p.x < 0 || p.y <0 || p.x > BW || p.y > BH) {
+						return;
+					}
+
+					ctx.beginPath();
+					var gradient_blue = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                    var gradient_red = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                    var gradient_green = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+//					gradient.addColorStop(0, "rgba(7,120,249,1)");
+//					gradient.addColorStop(1, "rgba(7,120,249,0.3)");
+                gradient_blue.addColorStop(0, "rgba(0,0,250,1)");
+                gradient_blue.addColorStop(1, "rgba(0,100,250,1)");
+
+                gradient_red.addColorStop(0, "rgba(255,0,0,1)");
+				gradient_red.addColorStop(1, "rgba(255,0,100,1)");
+
+				gradient_green.addColorStop(0, "rgba(0,255,0,1)");
+				gradient_green.addColorStop(1, "rgba(0,255,100,1)");
+				    if(p.gpsFlag == 1 && p.communicateFlag == 1)
+				    {
+					ctx.fillStyle = gradient_blue;}
+					else if(p.gpsFlag == 0 && p.communicateFlag == 1)
+					{
+						ctx.fillStyle = gradient_green;
+					}
+					else 
+                    {
+                        ctx.fillStyle = gradient_red;
+
+                    }
+					ctx.arc(p.x, p.y, p.size, Math.PI*2, false);
+					ctx.fill();
+					// if (~~(0.5 + Math.random() * 7) == 1) {
+					// 	p.size = 0;
+					// } else {
+					// 	p.size = p.maxSize;
+					// }
+					if(p.repeateFlag == 1 &&p.communicateFlag == 1)
+					{
+						p.size = 0;
+					}
+					else
+					{
+						p.size = p.maxSize;
+					}
+					p.repeateFlag = 0;
+					// p.size = p.maxSize;
+			}
+			
+			function render(){
+			    renderAction();
+			    setTimeout(render, 180);
+			}
+
+			function renderAction() {
+				//document.getElementById("myDiv").innerHTML = gpsFlag;
+				ctx.clearRect(0, 0, BW, BH);
+				ctx.globalCompositeOperation = "lighter";
+				for(var i = 0, len = stars.length; i < len; ++i){
+					if (stars[i]) {
+						stars[i].render(i);
+					}
+				}
+			}
+
+            function showStars(rs) {
+				stars.length = 0;
+				var temp = {};
+				for (var i = 0, len = rs.length; i < len; i++) {
+					var item = rs[i];
+					var addNum = gridWidth / 2;
+//					var x = item[0] * gridWidth + addNum;
+//					var y = item[1] * gridWidth + addNum;
+                    var x = item[0] ;
+                    var y = item[1] ;
+//					var point = project.pointToLngLat(new BMap.Pixel(x, y));
+                    var point = new BMap.Point(x,y);
+					var px = map.pointToOverlayPixel(point);
+						//create all stars
+						var s = new Star({
+							x: px.x - py.x, 
+							y: px.y - py.y,
+							gpsFlag : item[2],
+							communicateFlag : item[3],
+							size: item[4],
+							repeateFlag: item[5]
+						});
+						stars.push(s);
+					//}
+				}
+				canvas.style.left = py.x + "px";
+				canvas.style.top = py.y + "px";
+				renderAction();
+			}
+
+
+
+			// 复杂的自定义覆盖物
+			function ComplexCustomOverlay(point){
+			  this._point = point;
+			}
+			ComplexCustomOverlay.prototype = new BMap.Overlay();
+			ComplexCustomOverlay.prototype.initialize = function(map){
+			  this._map = map;
+			  canvas = this.canvas = document.createElement("canvas");
+			  canvas.style.cssText = "position:absolute;left:0;top:0;";
+			  ctx = canvas.getContext("2d");
+			  var size = map.getSize();
+			  canvas.width = BW = size.width;
+			  canvas.height = BH = size.height;
+			  map.getPanes().labelPane.appendChild(canvas);
+			  //map.getContainer().appendChild(canvas);
+			  return this.canvas;
+			}
+			ComplexCustomOverlay.prototype.draw = function(){
+				var map = this._map;
+				var bounds = map.getBounds();
+				var sw = bounds.getSouthWest();
+				var ne = bounds.getNorthEast();
+				var pixel = map.pointToOverlayPixel(new BMap.Point(sw.lng, ne.lat));
+				py = pixel;
+				if (rs.length > 0) {
+					showStars(rs);
+				}
+			}
+			var myCompOverlay = new ComplexCustomOverlay(new BMap.Point(121,31));
+			map.addOverlay(myCompOverlay);
+
+			var project = map.getMapType().getProjection();
+			var bounds = map.getBounds();
+			var sw = bounds.getSouthWest();
+			var ne = bounds.getNorthEast();
+			sw = project.lngLatToPoint(new BMap.Point(sw.lng, sw.lat));
+			ne = project.lngLatToPoint(new BMap.Point(ne.lng, ne.lat));
+
+			//左上角墨卡托坐标点
+			var original = {
+				x : sw.x,
+				y : ne.y
+			}
+            
+			render();
+
+			function nowTimeCbk (time) {
+				requestMgr.request(time, function(){
+					if (isNowTimeData) {
+						setTimeout(function(){
+							if (isNowTimeData) {
+								startCbk(nowTimeCbk);
+							}
+						}, 100);
+					}
+				});
+			}
+			function startCbk(cbk){
+				var now = new Date();
+				var time = {
+					hour   : now.getHours(),
+					minute : now.getMinutes(),
+					second : now.getSeconds()
+				};
+				if (cbk) {
+					cbk(time);
+				}
+			};
+			startCbk(nowTimeCbk);
+		} else {
+			alert('请在chrome、safari、IE8+以上浏览器查看本示例');
+		}
+
+</script>
+</body>
+</html>

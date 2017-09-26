@@ -16,7 +16,7 @@ class User(UserMixin,db.Model):
     confirmed = db.Column(db.Boolean,default=False)
      
     def is_admin(self):
-        if self.email==current_app.config["NB_ADMIN"]:
+        if self.email == current_app.config["NB_ADMIN"]:
             return True
         else:
             return False 
@@ -86,8 +86,27 @@ class BSConfig(db.Model):
     dlThroughout = db.Column(db.Integer,default=400)
     PacketMiss = db.Column(db.Float, default=0.1)
     def as_dict(self):
-        dict= {c.name:getattr(self,c.name) for c in self.__table__.columns if c.name=="Throughout" or c.name=="dlThroughout" or c.name=="ulThroughout" or c.name=="PacketMiss"}
-        return dict
+        d= {c.name:getattr(self,c.name) for c in self.__table__.columns 
+                if c.name=="BSID" or 
+                   c.name=="bs_name" or 
+                   c.name=="BSPort1" or 
+                   c.name=="BSIP1" or c.name=="Throughout" or c.name=="dlThroughout" or c.name=="ulThroughout" or c.name=="PacketMiss"}
+        return d
+    def config_as_dict(self):
+        d = {c.name:getattr(self,c.name) for c in self.__table__.columns
+                if c.name=="bs_name"  or 
+                   c.name=="BSIP1"   or 
+                   c.name=="BSPort1" or 
+                   c.name=="BSIP2"   or 
+                   c.name=="BSPort2" or 
+                   c.name=="ulPacketTime" or 
+                   c.name=="ulPacketNum"  or 
+                   c.name=="dlLogicSubFrameNum"   or 
+                   c.name=="dlPacketTime"         or
+                   c.name=="ulCompetitionSectionTime" or
+                   c.name=="sin_family"           or
+                   c.name=="dlLogicSubFrameIdx"}
+        return d
     def __repr__(self):
         return '<BS %s>'%self.BSID
     

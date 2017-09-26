@@ -5,6 +5,37 @@ from wtforms.validators import Required,IPAddress,Length, Regexp, NumberRange
 from ..models import BSConfig,TRXConfig,SSConfig
 from wtforms import ValidationError
 
+class mform(FlaskForm):
+    us= StringField("ea")
+    api=StringField("api",[Required()])
+    submit = SubmitField("sm")
+    code=IntegerField("code",[Required()])
+    alias=StringField("ali")
+    data=TextField("json",[Required()])
+
+
+class addBaseForm(FlaskForm):
+    bs_name=StringField('BSName',validators=[Required(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_]*$',0,'bs_Name must have only letters,''numbers and underscores')])
+    BSIP1=StringField('BSIP1',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
+    BSPort1= IntegerField('BSPort1', validators=[Required()])
+    BSIP2=StringField('BSIP2',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
+    BSPort2= IntegerField('BSPort2', validators=[Required()])
+    
+    ulPacketTime =IntegerField('ulPacketTime',validators=[Required()])
+    ulPacketNum  =IntegerField('ulPacketNum',validators=[Required()])
+    dlLogicSubFrameNum = IntegerField('dlLogicSubFrameNum', validators=[Required()])
+    dlPacketTime  = IntegerField('dlPacketTime',validators=[Required()])
+
+    ulCompetitionSectionTime = IntegerField('ulCompetitionSectionTime',validators=[Required()])
+    sin_family = IntegerField('sin_family', validators=[Required()])
+    dlLogicSubFrameIdx = IntegerField('dlLogicSubFrameIdx',validators=[Required()])
+#    TRXNum = IntegerField('TRXNum', validators=[Required(),NumberRange(1,8)])
+
+
+    
+    def validate_bs_name(self,field):
+        if  BSConfig.query.filter_by(bs_name=field.data).first():
+            raise ValidationError('username already registered')
 class BaseForm(FlaskForm):
     bs_name=StringField('BSName',validators=[Required(),Length(1,64),Regexp('^[A-Za-z][A-Za-z0-9_]*$',0,'bs_Name must have only letters,''numbers and underscores')])
     BSIP1=StringField('BSIP1',validators=[IPAddress(ipv4=True, ipv6=False, message=None)])
@@ -13,16 +44,22 @@ class BaseForm(FlaskForm):
     BSPort2= IntegerField('BSPort2', validators=[Required()])
     
     ulPacketTime =IntegerField('ulPacketTime',validators=[Required()])
-    ulPacketNum  =IntegerField('ulPacketTime',validators=[Required()])
-    dlLogicSubFrameNum = IntegerField('dlLogicSubFrame', validators=[Required()])
+    ulPacketNum  =IntegerField('ulPacketNum',validators=[Required()])
+    dlLogicSubFrameNum = IntegerField('dlLogicSubFrameNum', validators=[Required()])
     dlPacketTime  = IntegerField('dlPacketTime',validators=[Required()])
 
     ulCompetitionSectionTime = IntegerField('ulCompetitionSectionTime',validators=[Required()])
     sin_family = IntegerField('sin_family', validators=[Required()])
     dlLogicSubFrameIdx = IntegerField('dlLogicSubFrameIdx',validators=[Required()])
 #    TRXNum = IntegerField('TRXNum', validators=[Required(),NumberRange(1,8)])
+
+    def __init__(self, bs, *args, **kwargs):
+        super(BaseForm, self).__init__(*args,**kwargs)
+        self.bs = bs
+
+    
     def validate_bs_name(self,field):
-        if BSConfig.query.filter_by(bs_name=field.data).first():
+        if field.data != self.bs.bs_name and BSConfig.query.filter_by(bs_name=field.data).first():
             raise ValidationError('username already registered')
 
 class TrxForm(FlaskForm):

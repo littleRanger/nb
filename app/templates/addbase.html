@@ -61,12 +61,20 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+<div>
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-warning">
+		{{message}}
+	</div>
+	{% endfor %}
+</div>
 <div class="content">
 	<form action="{{url_for('main.add_bs')}}" method="POST" class="form-horizontal" target="_self"> 
 	</fieldset>
 	<legend>Base config</legend>
-	<div class="col-md-4">
-		{{wtf.quick_form(form)}}
+	<div class="col-right-2">
+		{{wtf.quick_form(form,form_type="horizontal", horizontal_columns=('lg',2,3))}}
 		<button type="submit" class="btn btn-default">提交</button>
 		<button type="reset" class="btn btn-default">重置</button>
 	</div>

@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    {% import "bootstrap/wtf.html" as wtf %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>通道</title>
+<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+<script src="/static/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/js/Validform_v5.3.2_ncr_min.js" type="text/javascript"></script>
+
+<style type="text/css">
+	.content{
+		margin:2% 8%;
+		overflow:hidden;
+	}
+	.right-float{
+		float:right;
+	}
+	.nav-text{
+		font-size:1.1em;
+	}
+	.nav-a{
+		padding:15px 8px !important;
+	}
+	.container{
+		margin:0 8%;
+		padding:0 0;
+	}
+	.config-right{
+		float:right;
+		width:24%;	
+	}
+	.config-right-hide{
+		display:none;
+	}
+	.pop-show-left{
+		float:left;
+		width:72%;
+	}
+	.td-width{
+		width:23%;
+	}
+	.td-width2{
+		width:50%;
+		padding:8px;
+		border-bottom:1px solid #ccc;
+	}
+	.td-padding{
+		padding:0 4%;
+	}
+	.td-border{
+		border-left:1px solid #ccc;
+	}
+	.table-width{
+		width:100%;
+	}
+	.config-btn{
+		border:0;
+		padding:0;
+	}
+</style>
+</head>
+
+<body>
+<nav class="navbar navbar-default ">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand nav-text" href="#">Brand</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.bs',bsid=bs)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bs}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.trx',bsid=bs,trxid=trx)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trx}}</a></li>
+      </ul>
+	  <ul class="nav navbar-nav right-float">
+		  {% if current_user.is_authenticated %}
+		  <li class=""><a href="{{url_for("auth.logout")}}">退出登录</a></li>
+		{%else %}
+        <li class=""><a href="#">登录</a></li>
+		{%endif%}
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<div class="content">
+	<div class="config-right-hide" id="right">
+          <form class="trx_form" action="/">
+            <p>trx_name <input type="text" name="trx" id="trx_name"/></p>
+              <p><input type/></p>
+        <p><input type="submit" value="submit"></p>
+        </form>
+		<div id="resultDiv"></div>
+	</div>
+	
+  <div id="left">
+	<div class="panel panel-default">
+  		<!-- Default panel contents -->
+ 		 <div class="panel-heading">当前通信状态
+			 {% if current_user.is_admin %}
+		 	<button class="config-btn right-float" onclick="popConfig()">配置通道
+				<span class="glyphicon glyphicon-hand-right"></span>
+			</button>
+			{%endif%}
+		 </div>
+ 		  <div class="panel-body">
+    		<table class="table-width">
+				<tr>
+					<td class="td-width">TRX-Name</td>
+					<td class="td-width">--</td>
+					<td class="td-width td-padding  td-border">TRXTxPower</td>
+					<td class="td-padding">--</td>
+				</tr>
+				<tr>
+					<td >TRXIP</td>
+					<td >--</td>
+					<td class="td-padding td-border">trxDataRate</td>
+					<td class="td-padding ">--</td>
+				</tr>
+				<tr>
+					<td >TRXPort</td>
+					<td >--</td>
+					<td class="td-padding td-border">trxFreq</td>
+					<td class="td-padding">--</td>
+				</tr>
+			</table>
+ 		 </div>
+	</div>
+	
+	<div class="panel panel-default">
+  		<div class="panel-heading">
+    		<h2 class="panel-title">终端</h2>
+  		</div>
+  		<div class="panel-body">
+    		<br />请从下面列表中选择您将访问的终端。(若您想重新选择访问基站 / 通道，请返回首页 / 上一级。)<br /><br />
+			<button type="button" onclick="(function(){
+				window.open(window.location+'/addss','_self');
+			})()">添加终端
+			</button>
+  		</div>
+		<table class="table">
+			<tr>
+				<th class="td-width2">SS-Name</th>
+				<th class="td-width2">SS-IP</th>
+			</tr>
+		</table>
+	</div>
+  </div>
+</div>
+</body>
+
+<script type="text/javascript">
+//配置通道的button触发，点击时既弹出配置表单，??又获得当前配置参数
+	function popConfig(){
+		var config_view = document.getElementById("right");
+		var show_view = document.getElementById("left");
+		if(config_view.className == "config-right-hide"){
+			config_view.className = "config-right";
+			show_view.className = "pop-show-left";
+			//getConfig();
+		}else{
+			config_view.className = "config-right-hide";
+			show_view.className = "";
+		}
+	}
+	function pulltrxcfg(){
+		var xmlhttp;
+		if(window.XMLHttpRequest){
+			xmlhttp = new XMLHttpRequest();
+	}else{
+		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange = function(){
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+				var txt = xmlhttp.responseText;
+				var obj = eval("("+txt+")");
+				var form = document.getElementsByTagName("form")[0];
+				var inputs = [];
+                                //alert(obj.ret);
+                                //form[1].innerHTML = 90;
+				inputs = form.getElementsByTagName("input");
+				inputs[1].value =obj.trx_name;//BSName
+				inputs[2].value =obj.TRXIP;//BSIP1
+				inputs[3].value =obj.TRXPort;//BSPort1
+				inputs[4].value =obj.TRXTxPower;//BSIP2
+				inputs[5].value =obj.TRXDataRate;//
+				inputs[6].value =obj.TRXFreq;//
+			}
+		}
+		var url = window.location + "/pull_trxcfg";
+		xmlhttp.open("GET",url,true);
+		xmlhttp.send();
+	}
+</script>
+<script type="text/template" id="html_template">
+<div class="text-right right-float">
+		<button type="button" class="btn btn-default" onclick="">
+				<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+		</button>
+</div>
+</script>
+
+<script type="text/javascript">
+var xmlhttp;
+if(window.XMLHttpRequest){
+	xmlhttp = new XMLHttpRequest();
+}else{
+	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+}
+xmlhttp.onreadystatechange = function(){
+	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+		var txt = xmlhttp.responseText; 
+		var obj = eval("("+txt+")");
+		var tr_num = obj.length;
+		//数据处理
+		var tables = document.getElementsByTagName("table");
+		var state_table = tables[0];
+		var tds = state_table.getElementsByTagName("td");
+		tds[11].innerHTML = obj[tr_num-1].TRXFreq;
+		tds[9].innerHTML = obj[tr_num-1].TRXPort;
+		tds[3].innerHTML = obj[tr_num-1].TRXTxPower;
+		tds[7].innerHTML = obj[tr_num-1].TRXDataRate;
+		tds[5].innerHTML = obj[tr_num-1].TRXIP;
+		tds[1].innerHTML = obj[tr_num-1].trx_name;
+		var ss_table = tables[1];
+		for(var i = 0;i<tr_num-1;i++){
+			var tr = document.createElement("tr");
+			
+			ss_table.appendChild(tr);
+			var td = [];
+			for(var j = 0;j<2;j++){
+				td[j] = document.createElement("td");
+				td[j].className = "td-width2";
+				tr.appendChild(td[j]);
+			}
+			td[0].innerHTML = obj[i].ss_name;
+			td[1].innerHTML = obj[i].ssip;
+		//	td[2].innerHTML = document.getElementById('html_template').innerHTML;
+		//	td[2].getElementsByTagName("button")[0].onclick = function(num){
+		//		return function(){
+		//			url = window.location.href + "/"+obj[num].id;
+		//			window.location = url;
+		//		}
+		//	}(i);
+		}
+	}
+}
+var url = window.location + "/data";
+xmlhttp.open("GET",url,true);
+xmlhttp.send();
+</script>
+
+<script type="text/javascript">
+//配置参数button触发
+function ajaxSubmitForm() {    
+	var form = document.forms[0];	
+	var elements = form.getElementsByTagName("input");// Enumeration the form elements            
+	var element;            
+	var i;  
+	// Form contents need to submit          
+	var postContent = "";           
+	for(i=0;i<elements.length;++i) {                    
+		 var element=elements[i];            
+		 if(element.type=="text" || element.type=="textarea" || element.type=="hidden") {            
+			postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";            
+		 }            
+		 else if(element.type=="select-one"||element.type=="select-multiple") {            
+			 var options=element.options,j,item;            
+			 for(j=0;j<options.length;++j){            
+				 item=options[j];            
+				 if(item.selected) {                    
+					postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(item.value) + "&";                            
+				 }            
+			 }            
+		 } else if(element.type=="checkbox"||element.type=="radio") {            
+			 if(element.checked) {                            
+				 postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                         
+			 }                  
+		 } else if(element.type=="file") {                          
+			 if(element.value != "") {                                  
+				postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                         
+			 }                  
+		 } else {                                  
+			 postContent += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value) + "&";                
+		 }            
+	}           	
+	ajaxSubmit(form.action, form.method, postContent,"resultDiv");            
+}            
+ // url - the url to do submit            
+ // method - "get" or "post"            
+ // postContent - the string with values to be submited            
+ // resultDivId - show the submit progress, submitting or finished    
+ function ajaxSubmit(url, method, postContent, resultDivId){            
+	 //设置进度显示模块
+	 var resultDiv = document.getElementById(resultDivId);                                  
+	 window.setTimeout(function () {                          
+		 resultDiv.innerHTML = "Submitting....";                       
+		 resultDiv.style.display = "";              
+	 }, 1);                
+           
+	 if (window.XMLHttpRequest){                          
+	 	xmlhttp=new XMLHttpRequest();             
+	 }                                
+	 else if (window.ActiveXObject){
+		 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");                   
+	 }
+	 
+	 if(xmlhttp) {                     
+		 xmlhttp.onreadystatechange = function(){                                
+		 	// if xmlhttp shows "loaded"                                
+	    	 	if (xmlhttp.readyState==4){                                  
+				 resultDiv.innerHTML = "Submit finished!"; 
+				 setTimeout("resultDiv.innerHTML = ''",3000);
+			 }                          
+	 	 };
+		 var url = window.location + "/trx_cfg";
+		 if(method.toLowerCase() == "get") {                               
+			 xmlhttp.open("GET", url + "?" + postContent, true);                                 
+			 xmlhttp.send(null);                       
+		 } else if(method.toLowerCase() == "post") {   
+			 xmlhttp.open("POST", url, true);   
+			 xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");   
+			 xmlhttp.send(postContent);     
+		 }            
+	 } else {    
+		 resultDiv.innerHTML = "Can't create XMLHttpRequest object, please check your web browser.";    
+	 }       
+ }
+</script>
+</html>

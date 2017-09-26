@@ -1,16 +1,16 @@
-{% extends "base.html" %}
+{% extends "basemodel.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}nbWeb - login{% endblock %}
 {% block navbar%}{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
+<div  class="page-header">
     <h1>Login</h1>
 </div>
-<div class="col-md-4">
-	{{ wtf.quick_form(form)}}
+<div  class="col-lg-4">
+	{{ wtf.quick_form(form,horizontal_columns=('lg',3,7))}}
     <br>
-	<p>New user? <a href="{{ url_for('auth.register') }}">Click here to register </a></p>
+	<p class="col-lg-10">New user? <a href="{{ url_for('auth.register') }}">Click here to register </a></p>
 </div>
 {% endblock %}
 

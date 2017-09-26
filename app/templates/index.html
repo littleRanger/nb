@@ -13,6 +13,10 @@
 	.right-float{
 		float:right;
 	}
+	.table-set{
+		height:263px;
+		overflow:hidden;		
+	}
 	.td-set{
 		width:33%;
 		padding:8px;
@@ -30,6 +34,10 @@
 	}
 	.nav-a{
 		padding:15px 8px !important;
+	}
+	.page-bt{
+		float:right;
+		margin:0;
 	}
 </style>
 </head>
@@ -65,8 +73,16 @@
     </div><!-- /.navbar-collapse -->	
   </div><!-- /.container-fluid -->
 </nav>
+
+<div>
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-warning">
+		{{message}}
+	</div>
+	{% endfor %}
+</div>
 <div class="content">
-	<h2>您好,{{current_user.username}}</h2>
+	<h2>您好, {{current_user.username}}</h2>
 	<div class="panel panel-default">
   		<div class="panel-heading">
     		<h2 class="panel-title">基站</h2>
@@ -76,70 +92,89 @@
 			<button type="button" onclick="(function(){
 						 url_t = window.location + 'addbase';
 						 window.open(url_t,'_self');
-						 })();">添加基站</button>
+						 })();">添加基站
+			</button>
   		</div>
-		<table class="table">
-			<tr>
-				<th class="td-set">基站ID</th>
-				<th class="td-set">基站Name</th>
-				<th class="td-set">通道数</th>
+			
+		  <table class="table ">
+			<tr id='row'>
+				<td class="td-set" id="id">基站ID</td>
+				<td class="td-set" id="name">基站Name</td>
+				<td class="td-set" id="num">通道数</td>
 			</tr>
-		</table>
+		  </table>
 	</div>
+	<nav aria-label="Page navigation">
+		<ul class="pagination page-bt" id="paging">
+		</ul>	
+	</nav>
 </div>
 </body>
 
 <script type="text/template" id="html_template">
-<div class="text-right right-float">
+<div class="right-float">
 		<button type="button" class="btn btn-default" onclick="">
 				<span class="glyphicon glyphicon glyphicon-zoom-in"></span>
 		</button>
 </div>
 </script>
+<script type="text/template" id="html_template1">
+	<li><a type="button">1</a></li>
+</script>
 
 <script type="text/javascript">
-/*json数据格式：
-var txt = '{"['+
-			'{"BS_ID":1,"BS_Name""num":10,"url":""},'+
- */
-//加载完页面后发送ajax请求，刷新基站列表
-var xmlhttp;
-if(window.XMLHttpRequest){
-	xmlhttp = new XMLHttpRequest();
-}else{
-	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+//加载页面按钮
+var page_num = {{pagenum}};
+var paging = $("#paging");
+var li = $("#html_template1").html();
+for(var i=0;i<page_num;i++){
+	paging.html(function(index,value){
+		return value + li;
+	});
 }
-xmlhttp.onreadystatechange = function(){
-	if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-		var txt = xmlhttp.responseText; 
-		var obj = eval("("+txt+")");
-		var tr_num = obj.length;
-		//数据处理
-		var bs_table = document.getElementsByTagName("table")[0];
-		for(var i = 0;i<tr_num;i++){
-			var tr = document.createElement("tr");
-			bs_table.appendChild(tr);
-			var td = [];
-			for(var j = 0;j<4;j++){
-				td[j] = document.createElement("td");
-				td[j].className = "td-set";
-				tr.appendChild(td[j]);
+
+//加载第一页的基站
+loadBS(1);
+
+//设置页面按钮显示的页数
+$("#paging a").html(function(index){
+	return index + 1;
+});
+//循环绑定页面按钮事件
+for(var i=0;i<page_num;i++){
+	$("#paging a").eq(i).bind("click",i,function(e){
+		loadBS(e.data);
+	});
+}
+
+//异步加载基站列表
+function loadBS(num){
+	var url = "http://" + location.host + "/index_data" + "?page=" + num;
+	$.get(url,function(response,status,xhr){
+		if(status == "success"){
+			var tr_num = response.length;
+			//alert(tr_num);
+			if(tr_num){
+				var btn_template = $("#html_template").html();
+				var bs_table = $("table").eq(0); 
+				bs_table.find("tr:first").nextAll().remove();
+						for(var i=0;i<tr_num;i++){
+							var row = $("#row").clone();
+							row.find("#id").text(response[i].BS_ID);
+							row.find("#name").text(response[i].BS_Name);
+							row.find("#num").html(response[i].num + btn_template);
+							row.find("button").bind("click",i,function(e){
+										url = window.location.href+"bs/"+response[e.data].BS_ID;
+										window.location = url;			
+							});
+							bs_table.append(row[0]);
+						}
 			}
-			td[0].innerHTML = obj[i].BS_ID;
-			td[1].innerHTML = obj[i].BS_Name;
-			td[2].innerHTML = obj[i].num + document.getElementById('html_template').innerHTML;
-			td[2].getElementsByTagName("button")[0].onclick = function(num){
-				return function(){
-					url = window.location.href+"bs/"+obj[num].BS_ID;
-					window.location = url;
-				}
-			}(i);
-			
+		}else{
+			alert("页面加载失败");
 		}
-	}
+	},"json");
 }
-url_t=location.href+"index_data";
-xmlhttp.open("GET",url_t,true);
-xmlhttp.send();
+
 </script>
 </html>

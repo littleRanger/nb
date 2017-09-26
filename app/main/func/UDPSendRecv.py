@@ -1,6 +1,7 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 import socket
 import struct
+
 def UDPSendtoBS(LocalAddr, DesAddr,data):
     udpsock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     udpsock.bind(LocalAddr)
@@ -16,13 +17,17 @@ def UDPRecvfromBS(ListenAddr):
     s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     #从指定的端口，从任何发送者，接收UDP数据
     s.setblocking(0)
-    s.settimeout(9)
+    s.settimeout(15)
     s.bind(ListenAddr)
     print('waiting for connet..')
-    while True:
+    try:
+        while True:
         #接收一个数据
-        data,addr=s.recvfrom(1024)       
-        return data
+            data,addr=s.recvfrom(1024)
+            return data
+    except:
+        print("no data recevied!")
+        return 1
 if __name__  == "__main__":
-    UDPSendtoBS(('127.0.0.1',8000),('127.0.0.1',2000),'data')
-    UDPRecvfromBS(('127.0.0.1',2000))    
+   # UDPSendtoBS(('127.0.0.1',8000),('127.0.0.1',2000),'data')
+    UDPRecvfromBS(('127.0.0.1',2000))
