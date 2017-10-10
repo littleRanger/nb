@@ -6,21 +6,22 @@ from . import main
 from ..import db
 from ..models import BSConfig, TRXConfig,SSConfig
 import json
+from decimal import Decimal as D, getcontext
 from UDPSendRecv import *
 from .forms import addBaseForm, BaseForm, TrxForm, SSForm, mform
 import struct
 import IPy
 import socket
-packfmt={
-  1000:"", #bs add
-  1001:"", #bs pull
-  1002:"", #bs push
-  1100:"",
-  1001:"",
-
-
-
-}
+# packfmt={
+#   1000:"", #bs add
+#   1001:"", #bs pull
+#   1002:"", #bs push
+#   1100:"",
+#   1001:"",
+#
+#
+#
+# }
 '''
 index
 index data
@@ -76,36 +77,27 @@ def test():
     if form.validate_on_submit():
         #type(form)
         print form
+        
+                         name="BSIP1"
+                         name="BSPort1"
+                         name="BSIP2"
+                         name=" BSPort2"
+                         name="ulPacketTime"
+                         name="ulPacketNum"
+                         name="ulCompetitionSectionTime"
+
+                         name="dlPacketTime"
+                         name="dlLogicSubFrameNum"
+                         name="dlLogicSubFrameIdx"
+        
         dir(form)
         print "aa"
         return "aa"
     else:
         return render_template('formtest.html',form=form)
     '''
-@main.route('/addbase', methods=['GET','POST'])
-@login_required
-def add_bs():
-    form = addBaseForm()
-    if form.validate_on_submit():
-        a= request.form.to_dict()
-        print a
-        #value check
-        #base none
-        #write to db
-        newbs= BSConfig(bs_name=form.bs_name.data,
-                BSIP1=form.BSIP1.data,BSPort1=form.BSPort1.data,
-                BSIP2=form.BSIP2.data, BSPort2=form.BSPort2.data,
-                ulPacketTime = form.ulPacketTime.data,
-                ulPacketNum = form.ulPacketNum.data,
-                dlLogicSubFrameNum= form.dlLogicSubFrameNum.data,
-                dlLogicSubFrameIdx= form.dlLogicSubFrameIdx.data,
-                dlPacketTime= form.dlPacketTime.data,
-                ulCompetitionSectionTime = form.ulCompetitionSectionTime.data,
-                sin_family = form.sin_family.data,
-                #TRXNum = form.TRXNum.data\
-                )
-        db.session.add(newbs)
-        db.session.commit()
+
+'''
         #send to base
            #---package date:head, 3BHIH
            #--payload:   10s15s15s9H
@@ -120,40 +112,86 @@ def add_bs():
            #--6     dlLogicSubFrameIdx
            #--7     dlPacketTime
            #--8     ulCompetitionSectionTime
-           #--9     sin_family
-        value=(0x88,0x88,0x00,newbs.BSID,0x00000000, 0x0000,newbs.bs_name.encode('utf-8'), IPy.IP(newbs.BSIP1).strHex()[2:], IPy.IP(newbs.BSIP2).strHex()[2:], newbs.BSPort1,newbs.BSPort2, newbs.ulPacketTime, newbs.ulPacketNum, newbs.dlLogicSubFrameNum,newbs.dlLogicSubFrameIdx, newbs.dlPacketTime, newbs.ulCompetitionSectionTime,newbs.sin_family)
-        strt = struct.Struct('!3BHIH10s8s8s9H')
-        #print value
+'''
+@main.route('/addbase/check_bsname', methods=['POST'])
+@login_required
+def check_bs_name():
+    print request.form['bs_name']
+    B = BSConfig.query.filter_by(bs_name=request.form['bs_name']).first()
+    if B is not None:
+        return "existed"
+    else:
+        return "not exist"
+
+@main.route('/addbase', methods=['GET','POST'])
+@login_required
+def add_bs():
+    if request.method=='GET':
+        return render_template('addbase.html')
+    else:
+        print request.form['bs_name']
+        print request.form['BSIP1']
+        print request.form['BSPort1']
+        print request.form['BSIP2']
+        print request.form['BSPort2']
+        print request.form['ulPacketTime']
+        print request.form['ulPacketNum']
+        print request.form['dlPacketTime']
+        print request.form['dlLogicSubFrameNum']
+        print request.form['dlLogicSubFrameIdx']
+        print request.form['ulCompetitionSectionTime']
+        newbs = BSConfig(bs_name=request.form['bs_name'], \
+                         BSIP1=request.form['BSIP1'],\
+                         BSPort1=request.form['BSPort1'],\
+                         BSIP2=request.form['BSIP2'],\
+                         BSPort2=request.form['BSPort2'],\
+                         ulPacketTime=request.form['ulPacketTime'],\
+                         ulPacketNum=request.form['ulPacketNum'], \
+                         dlPacketTime=request.form['dlPacketTime'], \
+                         dlLogicSubFrameNum= request.form['dlLogicSubFrameNum'],\
+                         dlLogicSubFrameIdx= request.form['dlLogicSubFrameIdx'],\
+                         ulCompetitionSectionTime = request.form['ulCompetitionSectionTime'])
+        print "ss"
+        db.session.add(newbs)
+        db.session.commit()
+        print 'aa'
+        value=(0x88,0x88,0x00,newbs.BSID,0x00000000, 0x0000,newbs.bs_name.encode('utf-8'), \
+               IPy.IP(newbs.BSIP1).strHex()[2:], IPy.IP(newbs.BSIP2).strHex()[2:], newbs.BSPort1,newbs.BSPort2,\
+               newbs.ulPacketTime,       newbs.ulPacketNum,  newbs.dlLogicSubFrameNum,\
+               newbs.dlLogicSubFrameIdx, newbs.dlPacketTime, newbs.ulCompetitionSectionTime)
+        strt = struct.Struct('!3BHIH10s8s8s8H')
+        print value
         d = strt.pack(*value)
         #print binascii.hexlify(d)
            #---send
         try:
             ret = UDPSendtoBS((current_app.config['SERVER_ADDR'],current_app.config['SERVER_PORT_S']),\
                           (current_app.config['BASE_ADDR'],current_app.config['BASE_PORT']),d)
-            if ret==0:
-                flash('server have sended base config successfully!')
-            else:
-                flash('sending data failed!')
+            #if ret==0:
+                #flash('server have sended base config successfully!')
+            #else:
+                #flash('sending data failed!')
+            try:
+                data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+                #flash('successfully received response!')
+                strt_b = struct.Struct('!4s')
+                d_b = strt_b.unpack(data)
+                print type(d_b)
+                print type(d_b[0])
+                print d_b[0]
+                if d_b[0]=='Base':
+                    flash('config succeded!')
+                else:
+                    raise
+            except:
+                print('no response')
+                # flash('no response!')
+                raise
         except:
             db.session.delete(newbs)
             db.session.commit()
-            flash('sending msg failed!')
-        try:
-            data = UDPRecvfromBS((current_app.config['BASE_ADDR'],current_app.config['SERVER_PORT_R']))
-            strt_b=struct.Struct('!4s')
-            d_b = strt_b.unpack(data)
-            flash('config succeded!')
-            print d_b
-        except:
-            db.session.delete(newbs)
-            db.session.commit()
-            flash('no response!')
-
-
+            flash('failed!')
         return redirect(url_for('main.index'))
-    else:
-        return render_template('addbase.html',form=form)
-
 
 '''base page
 page    --- /bs/<bsid>
@@ -168,9 +206,8 @@ def bs(bsid):
     id = int(bsid)
     bs = BSConfig.query.filter_by(BSID=id).first()
     if bs == None:
-        return render_template('404.html'),404
-    form = BaseForm(bs=None)
-    return render_template('base.html', bsid=id, form=form, msg=0)
+        return render_template('404.html'), 404
+    return render_template('base.html', bsid=id, msg=0)
 
 @main.route('/bs/<bsid>/base_data',methods = ['GET','POST'])
 @login_required
@@ -564,9 +601,18 @@ def map(bsid):
     else:
         assert request.method == 'POST'
         print request.form['lon'], request.form['lat'], request.form['radius']
-
-
+        # print type(request.form['lon'])
+        x=D(request.form['lon'])
+        y=D(request.form['lat'])
+        print getcontext()
+        print x
+        print x+D('0.01')
+        # d=[]
+        # print x[1]
+        # print float(x)
+        # print x
+        x1,x2,x3,y1,y2,y3 = str(x+D('0.01')),str(x+D('0.02')),str(x+D('0.1')),str(y-D('0.01')),str(y+D('0.1')),str(y-D('0.1'))
     #    print type(request_data)
      #   print request_data
-        d=[{'trxID':'1', 'GPS':'', 'status': 'on'}, {'trxID':'3', 'GPS':'', 'status': 'off'}, {'trxID':'4', 'GPS':'', 'status': 'on'}]
+        d=[{'trxID':'1', 'lon':x1, 'lat': y1, 'status': 0}, {'trxID':'3', 'lon':x2, 'lat': y2, 'status': 1}, {'trxID':'4', 'lon':x3, 'lat': y3, 'status': 0}]
         return json.dumps(d)

@@ -1,4 +1,5 @@
 #coding:UTF-8
+import sys
 from flask import Flask,render_template
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -6,6 +7,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import config
+
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -17,6 +19,8 @@ login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
 def create_app(config_name):
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 #   app.config['SQLALCHEMY_DATABASE_URL'] = 'mysql+pymysql://root:007119@localhost:3306/database_demo'
@@ -25,7 +29,7 @@ def create_app(config_name):
     print app.config['MAIL_PASSWORD']
     print app.config['MAIL_SERVER']
 
-    
+
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)

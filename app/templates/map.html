@@ -107,7 +107,7 @@ body,html,#map1{
 	  
     //wgs2bd
 	function wgs2bd(lon_wgs,lat_wgs){
-		var gcj = wgs84togcj02(rslon, rslat);
+		var gcj = wgs84togcj02(lon_wgs,lat_wgs);
 		var bd = gcj02tobd09(gcj[0],gcj[1]);;
 		return bd;
 	}
@@ -126,7 +126,6 @@ body,html,#map1{
 	var bd_calcu = wgs2bd(rslon,rslat);
 	var bd_lon= bd_calcu[0];
 	var bd_lat= bd_calcu[1];
-	
 
 	//初始化地图
 	var map = new BMap.Map("map1",{minZoom:10,maxZoom:16});
@@ -138,10 +137,11 @@ body,html,#map1{
 	
 	
 	//添加拖动监听事件
-	//map.addEventListener("dragend", showInfo);
+	map.addEventListener("dragend", showInfo);
 	
 	showInfo();
 	function showInfo(){
+		map.clearOverlays();
 		var cp = map.getCenter();
 	    var wgs = bd2wgs(cp.lng,cp.lat);
 	    var zoom = map.getZoom();
@@ -150,7 +150,7 @@ body,html,#map1{
 				var r = radius[i];
 			}
 		}
-	    var xmlhttp;
+	    var xmlhttp; 
 	    if(window.XMLHttpRequest){
 			xmlhttp = new XMLHttpRequest();
 	    }else{
@@ -158,17 +158,26 @@ body,html,#map1{
 	    }
 	    xmlhttp.onreadystatechange = function(){
 			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-				alert("success!");
+				var txt = xmlhttp.responseText;
+				var obj = eval("("+ txt +")");
+				var len = obj.length;
+				for(var i=0;i<len;i++){
+					alert(obj[i].lon+' '+obj[i].lat);
+					var bd = wgs2bd(obj[i].lon,obj[i].lat);
+					alert(bd[0]+' '+bd[1]);
+					var point = new BMap.Point(bd[0],bd[1]);
+					var marker = new BMap.Marker(point);
+					map.addOverlay(marker);
+				}
 			}
 	    }
 		var url = window.location.href;
 		xmlhttp.open('POST',url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 		xmlhttp.send("lon="+wgs[0]+"&lat="+wgs[1]+"&radius="+r);
-		
-		setTimeout(showInfo,5000);
 	}
-//
+	
+	setInterval(showInfo,10000);
 	
 	
 	//1秒后移动到定位位置

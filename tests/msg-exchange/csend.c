@@ -1,14 +1,16 @@
 #include <stdio.h>  
+#include <stdlib.h>
 #include <sys/types.h>  
+#include <string.h>
 #include <sys/socket.h>  
 #include <netinet/in.h>  
 #include <arpa/inet.h>  
-      
+#include <unistd.h>      
 int main(int argc, char *argv[])  
     {  
         int client_sockfd;  
         int len;  
-            struct sockaddr_in remote_addr; //服务器端网络地址结构体  
+        struct sockaddr_in remote_addr; //服务器端网络地址结构体  
         int sin_size;  
         char buf[BUFSIZ];  //数据传送的缓冲区  
         memset(&remote_addr,0,sizeof(remote_addr)); //数据初始化--清零  
@@ -23,7 +25,7 @@ int main(int argc, char *argv[])
             return 1;  
         }  
         
-        strcpy(buf,"This");  
+        strcpy(buf,"Base");  
         printf("sending: '%s'/n",buf);  
         sin_size=sizeof(struct sockaddr_in);  
           

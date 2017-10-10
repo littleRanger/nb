@@ -7,7 +7,7 @@ def UDPSendtoBS(LocalAddr, DesAddr,data):
     udpsock.setblocking(0)
     while True:
         if(udpsock.sendto(data,DesAddr)):
-            print("success!")
+            print("already sended msg to BS!")
         udpsock.close()
         break
     return 0 #success

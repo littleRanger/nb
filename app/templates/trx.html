@@ -97,51 +97,67 @@
 </nav>
 <div class="content">
 	<div class="config-right-hide" id="right">
-		  <form class="form-horizontal" method="post" action="/bs/{{bs}}/{{ trx }}/push_trxcfg" >
+		  <form class="form-horizontal" method="post" action="/bs/{{bs}}/{{ trx }}/push_trxcfg" onsubmit="return validate_trx_cfg()">
 			  <fieldset>
 			  <legend>配置通道</legend>
 			  <div class="form-group">
-				<label for="inputEmail3" class="col-sm-4 control-label">编号</label>
+				<label for="ent_trx_name" class="col-sm-4 control-label">编号</label>
 				<div class="col-sm-8">
-                    <input type="text" class="form-control" id="1"  /> <span id="s1">none</span>
+                    <input id="ent_trx_name" type="text" class="form-control" placeholder="请输入通道编号" name="trx_name"/>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-4 control-label">IP</label>
+				<label for="trx_IP" class="col-sm-4 control-label">IP</label>
 				<div  class="col-sm-8">
-				  <input type="text" class="form-control" id="2" /><span id="s2">none</span>
+				  <input  id="trx_IP" type="text" class="form-control" placeholder="配置通道IP" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-4 control-label">端口号</label>
-				<div id="d1" class="col-sm-8">
-				  <input type="text" class="form-control" id="3"  autocomplete="off" onblur="validate()"/><span id="s" >none</span>
-				</div>
-			  </div>
+				<label for="trx_port" class="col-sm-4 control-label">端口号</label>
+                  <div class="col-sm-8">
+				    <select class="form-control" id="trx_port">
+                      <option value="1">1</option>
+                      <option value="2" >2</option>
+                      <option value="3">3</option>
+                     </select>
+			      </div>
+              </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-4 control-label">发送功率</label>
+				<label for="trx_TxPower" class="col-sm-4 control-label">发送功率</label>
 				<div class="col-sm-8">
-				  <input type="text" class="form-control" id="4"  autocomplete="off" onblur="validate()"/><span>none</span>
-				</div>
+				    <select class="form-control" id="trx_TxPower">
+                      <option value="1">1</option>
+                      <option value="50" >50</option>
+                      <option value="3">3</option>
+                     </select>
+                </div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-4 control-label">传输速率</label>
+				<label for="trx_DataRate" class="col-sm-4 control-label">传输速率</label>
 				<div class="col-sm-8">
-				  <input type="text" class="form-control" id="5"  autocomplete="off" onblur="validate()"/><span>none</span>
-				</div>
+				    <select class="form-control" id="trx_DataRate">
+                      <option value="1">1</option>
+                      <option value="2" >2</option>
+                      <option value="3">3</option>
+                     </select>
+                </div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-4 control-label">频率</label>
+				<label for="trx_Freq" class="col-sm-4 control-label">频率</label>
 				<div class="col-sm-8">
-				  <input type="text" class="form-control" id="6"  autocomplete="off" />
-				</div>
+				    <select class="form-control" id="trx_Freq">
+                      <option value="1">1</option>
+                      <option value="2" >2</option>
+                      <option value="3">3</option>
+                     </select>
+                </div>
 			  </div>
 			  <div class="form-group">
 				<div class="col-sm-offset-4 col-sm-4">
-				  <button id="submitform" type="submit" class="btn btn-default form-control">submit</button>
+				  <button id="submitform" type="submit" class="btn btn-default form-control">修改配置</button>
 				</div>
 				<div class="col-sm-4 right-float">
-				  <button type="reset" class="btn btn-default form-control">reset</button>
+				  <button type="button" class="btn btn-default form-control" onclick="pulltrxcfg()">获取配置</button>
 				</div>
 			  </div>
 			  </fieldset>
@@ -212,38 +228,33 @@
 		if(config_view.className == "config-right-hide"){
 			config_view.className = "config-right";
 			show_view.className = "pop-show-left";
-			//getConfig();
 		}else{
 			config_view.className = "config-right-hide";
 			show_view.className = "";
 		}
 	}
-	function pulltrxcfg(){
-		var xmlhttp;
-		if(window.XMLHttpRequest){
-			xmlhttp = new XMLHttpRequest();
-	}else{
-		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		xmlhttp.onreadystatechange = function(){
-			if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-				var txt = xmlhttp.responseText;
-				var obj = eval("("+txt+")");
-				var form = document.getElementsByTagName("form")[0];
-				var inputs = [];
-                inputs = form.getElementsByTagName("input");
-				inputs[1].value =obj.trx_name;//BSName
-				inputs[2].value =obj.TRXIP;//BSIP1
-				inputs[3].value =obj.TRXPort;//BSPort1
-				inputs[4].value =obj.TRXTxPower;//BSIP2
-				inputs[5].value =obj.TRXDataRate;//
-				inputs[6].value =obj.TRXFreq;//
-			}
-		}
-		var url = window.location + "/pull_trxcfg";
-		xmlhttp.open("GET",url,true);
-		xmlhttp.send();
+
+{#获取通道配置#}
+	function pulltrxcfg() {
+        $.get(window.location+"/pull_trxcfg", function (data) {
+            var obj=eval("("+data+")");
+            $("#ent_trx_name").val(obj.trx_name);
+            $("#trx_IP").val(obj.TRXIP);
+            $("#trx_port").val(obj.TRXPort);
+            $("#trx_TxPower").val(obj.TRXTxPower);
+            $("#trx_DataRate").val(obj.TRXDataRate);
+            $("#trx_Freq").val(obj.TRXFreq);
+        });
+    }
+
+    function validate_trx_cfg() {
+{#        验证输入不给空#}
+        if(""==$("#ent_trx_name").val() || (""==$("#trx_IP").val()) || (null==$("#trx_port").val()) || (null==$("#trx_TxPower").val())
+        || (null==$("#trx_DataRate").val())
+        || (null==$("#trx_Freq").val()) ) {alert("xx");
+        return false;
 	}
+
 </script>
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
@@ -284,64 +295,12 @@
             td[1].innerHTML = obj[i].ssip;
         }
        });
-        $("#submitform").attr("disabled","disabled");
-        $("input").blur(function () {
-                var v1=$("#1").val();
-                var v2=$("#2").val();
-                if(v1==""|v2==""){
-                            $("#submitform").attr("disabled","disabled");
+                    $("#trx_port").val(-1);
+            $("#trx_TxPower").val(-1);
+            $("#trx_DataRate").val(-1);
+            $("#trx_Freq").val(-1);
+{#        $("#submitform").attr("disabled","disabled");#}
 
-                }
-                else{
-                    $.post("/bs/{{ bs }}/{{ trx }}/push_trxcfg_DataCheck", {
-                         trx_name:$("#1").val(),
-                         TRXIP:$("#2").val()
-                      },
-                        function (data, status) {
-                             if(status=="success"){
-                                 var obj = eval("("+data+")");
-                                 if(obj.trx_name==0){
-                                    $("#s1").text("ok");
-                                    $("#s1").css("color","#a4ff3c");
-                                    $("#1").css("background-color","#bd1ff89");
-                                 }
-                                 else if(obj.trx_name==2){
-                                    $("#s1").text("trxname has existed!");
-                                    $("#s1").css("color","red");
-                                 }
-                                 if(obj.TRXIP==0){
-                                    $("#s2").text("ok");
-                                    $("#s2").css("color","#a4ff3c");
-                                    $("#2").css("background-color","#bdff89");
-                                 }
-                                 else if(obj.TRXIP==2){
-                                    $("#s2").text("trxIP has existed!");
-                                    $("#s2").css("color","red");
-                                 }
-                                 if(obj.trx_name ==0 & obj.TRXIP==0){
-                                    $("#submitform").removeAttr("disabled");
-                                 }
-
-                             }
-                            else {
-                                 alert("transmit failed!");
-                            }
-                        })
-
-
-
-                }
-        })
-
-    });
-
-
-		//	td[2].innerHTML = document.getElementById('html_template').innerHTML;
-		//	td[2].getElementsByTagName("button")[0].onclick = function(num){
-		//		return function(){
-		//			url = window.location.href + "/"+obj[num].id;
-		//			window.location = url;
-		//		}
-		//	}(i);
+        });
 </script>
 </html>
