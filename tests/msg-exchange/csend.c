@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
             return 1;  
         }  
         
-        strcpy(buf,"Base");  
+        strcpy(buf,"trxc");  
         printf("sending: '%s'/n",buf);  
         sin_size=sizeof(struct sockaddr_in);  
           

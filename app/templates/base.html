@@ -12,15 +12,26 @@
 		padding-top:70px;
 		background-color:#f3f3f3;
 	}
+	.container-fluid{
+		padding-right:0;
+		padding-left:0;
+		margin-right:auto;
+		margin-left:auto;
+	}
+	.navbar-fixed-top{
+		top:0;
+		border-width:0;
+	}
 	.navbar-brand {
+		display:block;
 		color: #fff;
-		width: 200px;
 		text-align: left;
 		height: 60px;
 		font-size: 24px;
 		font-weight: 700;
 		text-transform: uppercase;
 		line-height: 30px;
+		margin-left:15px !important;
 	}
 	.nav-vertical-align{
 		height:60px;
@@ -29,6 +40,10 @@
 	.nav-font-size{
 		font-size:18px;
 	}
+	#exit{
+		margin-right:10%;
+		background-color:#1CC09F;
+	}
 	.wrapper{
 		position:relative;
 	}
@@ -36,17 +51,28 @@
 		position:absolute;
 		top:-15px;
 		width:25%;
+		height:100%;
 		right:0;
 		color:#fff;
-		padding-top:15px;
+		padding-top:20px;
 		
 	}
 	#sidebtn{
-		width:50px;
+		width:20px;
+		height:40px;
 		position:absolute;
 		top:20px;
-		left:-25px;
+		left:-20px;
+		padding-top:13px;
+		padding-left:3px;
 		background-color:#cfcfcf;
+		color:#000;
+	}
+	.panel-default > .panel-heading {
+	  color: #333;
+	  font-size:16px;
+	  background-color: #fff;
+	  border-color: #eee;
 	}
 	#left{
 		margin-right:25%;
@@ -68,7 +94,7 @@
         padding:0 4%;
     }
     .td-border{
-        border-left:1px solid #ccc;
+        border-left:1px solid #eee;
     }
     .table-width{
         width:100%;
@@ -110,7 +136,7 @@
           <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.index')}}">首页</a></li>
           <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
       </ul>
-      <ul class="nav navbar-nav right-float">
+      <ul class="nav navbar-nav right-float" id="exit">
           {% if current_user.is_authenticated %}
           <li class=""><a href="{{url_for('auth.logout')}}" class="nav-vertical-align">退出登录</a></li>
         {% else %}
@@ -129,7 +155,7 @@
 	{% endfor %}
   </div>
   <div class="config-right green" id="right">
-		<div id="sidebtn" href=""><i class=""></i></div>
+		<div id="sidebtn" href=""><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></div>
         <form class="form-horizontal" method="post" action="/bs/{{bs}}/push_bscfg" >
 			  <fieldset>
 			  <div class="form-group">
@@ -217,11 +243,13 @@
 			<div class="panel panel-default">
 				<!-- Default panel contents -->
 				 <div class="panel-heading">当前通信状态
-					 {% if current_user.is_admin() %}
+			<!--	{% if current_user.is_admin() %}
 					<button class="config-btn right-float" onclick="popConfig()">配置基站
 						<span class="glyphicon glyphicon-hand-right"></span>
 					</button>
-					{%endif%}
+					{%endif%}	
+			-->
+				 <a class="right-float" title="点击查看终端位置"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span></a>
 				 </div>
 				 <div class="panel-body">
 					<table class="table-width">
@@ -257,7 +285,7 @@
 			</div>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h2 class="panel-title">通道</h2>
+					通道
 				</div>
 				<div class="panel-body">
 					<br />请从下面列表中选择您将访问的通道。(若您想重新选择访问基站，请返回上一级。)<br /><br />
@@ -332,7 +360,6 @@
         xmlhttp.send();
     }
 </script>
-
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
     <button type="button" class="btn btn-default" onclick="">

@@ -437,8 +437,7 @@ trx config---pull cfg
 @main.route('/bs/<bsid>/<trxid>', methods=['GET','POST'])
 @login_required
 def trx(bsid,trxid):
-    form = TrxForm()
-    return render_template('trx.html',form = form, bs=int(bsid),trx=int(trxid))
+    return render_template('trx.html', bs=int(bsid),trx=int(trxid))
 
 
 @main.route('/bs/<bsid>/<trxid>/data', methods=['GET','POST'])
@@ -518,6 +517,7 @@ def addss(bsid,trxid):
 @login_required
 def PullTrxCfg(bsid,trxid):
     trx_db=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
+    
     print trx_db.as_dict()
     return json.dumps(trx_db.as_dict())
 
@@ -526,47 +526,57 @@ def PullTrxCfg(bsid,trxid):
 @login_required
 def Push_TrxCfg(bsid,trxid):
     t=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
-    print request.form['trx_name']
-    # t.trx_name  = request.form['trx_name']
-    # t.TRXIP     = request.form['TRXIP']
-    # t.TRXPort   = request.form['TRXPort']
-    # t.TRXPower  = request.TRXPort.data
-    # t.TRXDataRate = request.TRXDataRate.data
-    # t.TRXFreq = request.TRXFreq.data
+    # print request.form['trx_name']
+    # print request.form['TRXIP']
+    # print request.form['TRXPort']
+    # print request.form['TRXTxPower']
+    # print request.form['TRXDataRate']
+    # print request.form['TRXFreq']
+    t.trx_name  = request.form['trx_name']
+    t.TRXIP     = request.form['TRXIP']
+    t.TRXPort   = request.form['TRXPort']
+    t.TRXTxPower  = request.form['TRXTxPower']
+    t.TRXDataRate = request.form['TRXDataRate']
+    t.TRXFreq = request.form['TRXFreq']
+    # return redirect(url_for('main.trx', bsid=int(bsid), trxid=int(trxid)))
+
+        #send trxcfg to base: head payload
+           #---package head:   3BHIH
+           #--package payload:   10s 8s 4H
+           #-- 0        trx_name 10s
+           #-- 1        TRXIP   8s
+           #--2         TRXPort   H
+           #--3     TRXTxPower H
+           #--4     TRXDataRate H
+           #--5     TRXFreq H
+    value=(0x88,0x88,0x32,int(bsid), int(trxid), 0, t.trx_name.encode('utf-8'), IPy.IP(t.TRXIP).strHex()[2:], int(t.TRXPort),int(t.TRXTxPower),int(t.TRXDataRate), int(t.TRXFreq))
+    #s = struct.Struct(packfmt[10000])
+    strt = struct.Struct('!3BHIH10s8s4H')
+    print value
+    d = strt.pack(*value)
+    try:
+        UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
+                          (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), d)
+        try:
+            data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+            # flash('successfully received response!')
+            strt_b = struct.Struct('!4s')
+            d_b = strt_b.unpack(data)
+            print type(d_b)
+            print type(d_b[0])
+            print d_b[0]
+            if d_b[0] == 'trxc':
+                flash('config succeded!')
+            else:
+                raise
+        except:
+            print('no response')
+            # flash('no response!')
+            raise
+    except:
+        db.session.rollback()
+        flash('failed!')
     return redirect(url_for('main.trx', bsid=int(bsid), trxid=int(trxid)))
-    '''
-        db.session.add(t)
-        db.session.commit()
-        #send to base
-           #---package date:head, 3BHIH
-           #--payload:   10s15s15s9H
-           #--          bs_name 10s
-           #--          BSIP1   8s
-           #--          BSIP2   8s
-           #--1          BSPort1   H (0-65525)
-           #--2          BSPort2   H
-           #--3     ulPacketTime
-           #--4     ulPacketNum
-           #--5     dlLogicSubFrameNum
-           #--6     dlLogicSubFrameIdx
-           #--7     dlPacketTime
-           #--8     ulCompetitionSectionTime
-           #--9     sin_family
-        value=(0x88,0x88,0x00,newbs.BSID,0x00000000, 0x0000,newbs.bs_name.encode('utf-8'), IPy.IP(newbs.BSIP1).strHex()[2:], IPy.IP(newbs.BSIP2).strHex()[2:], newbs.BSPort1,newbs.BSPort2, newbs.ulPacketTime, newbs.ulPacketNum, newbs.dlLogicSubFrameNum,newbs.dlLogicSubFrameIdx, newbs.dlPacketTime, newbs.ulCompetitionSectionTime,newbs.sin_family)
-        #s = struct.Struct(packfmt[10000])
-        strt = struct.Struct('!3BHIH10s8s8s9H')
-        print value
-        d = strt.pack(*value)
-        ret = UDPSendtoBS(current_app.config["LOCALADDR"],current_app.config["DESADDR"],d)
-        #feedback
-
-        return redirect(url_for('main.index'))
-    else:
-        return render_template('addbase.html',form=form)
-        
-        return redirect(url_for('main.trx',bsid=int(bsid),trxid=int(trxid)))
-    '''
-
 
 @main.route('/bs/<bsid>/<trxid>/push_trxcfg_DataCheck', methods=['GET', 'POST'])
 @login_required
@@ -579,15 +589,15 @@ def Push_TrxCfg_DataCheck(bsid, trxid):
     trx_IPs=[b.TRXIP for b in bss.TRXs]
     print trx_names
     trx_name = request.form['trx_name']
-    TRXIP = request.form['TRXIP']
+    trx_ip = request.form['trx_ip']
     if (trx_name == t.trx_name) or (trx_name not in trx_names):
         d['trx_name'] = 0
     else:
         d['trx_name'] = 2
-    if (TRXIP is t.TRXIP) or (TRXIP not in trx_IPs):
-        d['TRXIP'] = 0
+    if (trx_ip == t.TRXIP) or (trx_ip not in trx_IPs):
+        d['trx_ip'] = 0
     else:
-        d['TRXIP'] = 2
+        d['trx_ip'] = 2
     print d
     return json.dumps(d)
         

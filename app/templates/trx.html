@@ -95,6 +95,13 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+<div>
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-warning">
+		{{message}}
+	</div>
+	{% endfor %}
+</div>
 <div class="content">
 	<div class="config-right-hide" id="right">
 		  <form class="form-horizontal" method="post" action="/bs/{{bs}}/{{ trx }}/push_trxcfg" onsubmit="return validate_trx_cfg()">
@@ -109,13 +116,13 @@
 			  <div class="form-group">
 				<label for="trx_IP" class="col-sm-4 control-label">IP</label>
 				<div  class="col-sm-8">
-				  <input  id="trx_IP" type="text" class="form-control" placeholder="配置通道IP" />
+				  <input  id="trx_IP" type="text" class="form-control" placeholder="配置通道IP" name="TRXIP" />
 				</div>
 			  </div>
 			  <div class="form-group">
 				<label for="trx_port" class="col-sm-4 control-label">端口号</label>
                   <div class="col-sm-8">
-				    <select class="form-control" id="trx_port">
+				    <select class="form-control" id="trx_port" name="TRXPort">
                       <option value="1">1</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
@@ -125,7 +132,7 @@
 			  <div class="form-group">
 				<label for="trx_TxPower" class="col-sm-4 control-label">发送功率</label>
 				<div class="col-sm-8">
-				    <select class="form-control" id="trx_TxPower">
+				    <select class="form-control" id="trx_TxPower" name="TRXTxPower">
                       <option value="1">1</option>
                       <option value="50" >50</option>
                       <option value="3">3</option>
@@ -135,7 +142,7 @@
 			  <div class="form-group">
 				<label for="trx_DataRate" class="col-sm-4 control-label">传输速率</label>
 				<div class="col-sm-8">
-				    <select class="form-control" id="trx_DataRate">
+				    <select class="form-control" id="trx_DataRate" name="TRXDataRate">
                       <option value="1">1</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
@@ -145,7 +152,7 @@
 			  <div class="form-group">
 				<label for="trx_Freq" class="col-sm-4 control-label">频率</label>
 				<div class="col-sm-8">
-				    <select class="form-control" id="trx_Freq">
+				    <select class="form-control" id="trx_Freq" name="TRXFreq">
                       <option value="1">1</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
@@ -222,6 +229,7 @@
 </body>
 
 <script type="text/javascript">
+{#    弹出右侧窗口#}
 	function popConfig(){
 		var config_view = document.getElementById("right");
 		var show_view = document.getElementById("left");
@@ -248,12 +256,77 @@
     }
 
     function validate_trx_cfg() {
-{#        验证输入不给空#}
+{#        验证bianhao#}
+{#        var reg=new RegExp("^\w+$");#}
+        if(""==$("#ent_trx_name"))
+        {
+            alert("编号不能为空！");
+            return false;
+        }
+        var reg=/^\w+$/;
+        if (!reg.test($("#ent_trx_name").val()))
+        {
+            alert("通道编号为数字字母下划线");
+            return false;
+        }
+{#        验证IP#}
+        if(!validate_trx_ip())
+        {
+            return false;
+        }
+
         if(""==$("#ent_trx_name").val() || (""==$("#trx_IP").val()) || (null==$("#trx_port").val()) || (null==$("#trx_TxPower").val())
         || (null==$("#trx_DataRate").val())
-        || (null==$("#trx_Freq").val()) ) {alert("xx");
-        return false;
+        || (null==$("#trx_Freq").val()) )
+        {
+            alert("请选择配置");
+            return false;
+        }
+        var flag=0;
+        $.ajaxSettings.async = false;
+        $.post("/bs/{{ bs }}/{{ trx }}/push_trxcfg_DataCheck",
+            {
+                trx_name:$("#ent_trx_name").val(),
+                trx_ip:$("#trx_IP").val()
+            },
+            function (data, status) {
+                var txt=eval("("+data+")");
+                if(txt.trx_ip!=0)
+                {
+                    alert("ip已存在");
+                    flag=-1;
+                }
+                if(txt.trx_name!=0)
+                {
+                    alert("编号已存在");
+                    flag=-1;
+                }
+            });
+        $.ajaxSettings.async=true;
+	    if(flag==0)
+        {return true;}
+        else {
+{#	        alert("f");#}
+	        return false;}
 	}
+
+	function validate_trx_ip() {
+        if(""==$("#trx_IP"))
+        {
+            alert("IP不能为空！");
+            return false;
+        }
+        var reg_IP=/\d+\.\d+\.\d+\.\d+/;
+        if(reg_IP.test($("#trx_IP").val()))
+        {
+           if(RegExp.$1<256 && RegExp.$2<256 && RegExp.$3<256 && RegExp.$4<256)
+           {
+               return true;
+           }
+        }
+        alert("ipv4 Addr needed!");
+        return false;
+    }
 
 </script>
 <script type="text/template" id="html_template">
