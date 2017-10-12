@@ -512,15 +512,59 @@ def addss(bsid,trxid):
     else:
         return render_template('addss.html',form=form,bsid=bsid,trxid=trxid)
 
-#pull trx config
+#pull trx config from db
+# @main.route('/bs/<bsid>/<trxid>/pull_trxcfg',methods = ['GET','POST'])
+# @login_required
+# def PullTrxCfg(bsid,trxid):
+#     trx_db=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
+#     print trx_db.as_dict()
+#     return json.dumps(trx_db.as_dict())
+
+#pull trx config from base
 @main.route('/bs/<bsid>/<trxid>/pull_trxcfg',methods = ['GET','POST'])
 @login_required
 def PullTrxCfg(bsid,trxid):
     trx_db=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
-    
     print trx_db.as_dict()
-    return json.dumps(trx_db.as_dict())
-
+    value = (0x88, 0x88, 0x22, int(bsid),int(trxid),0)
+    s = struct.Struct('!3BHIH')
+    d = s.pack(*value)
+    errormsg=0
+    try:
+        ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
+                          (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), d)
+        try:
+            rowdata = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+            strt = struct.Struct('!3BHIH10s8s4H')
+            print "a"
+            # wait for a bscfg msg from bs wait time:
+            try:
+                pdata = strt.unpack(rowdata)
+                print "b"
+                if pdata[0] is not 0x88 or pdata[1] is not 0x88 or \
+                                pdata[2] is not 0x22 or \
+                                pdata[3] is not int(bsid) or\
+                                pdata[4] is not int(trxid):
+                    trx_db.trx_name = pdata[6]
+                    trx_db.TRXIP = pdata[7]
+                    trx_db.TRXPort = pdata[8]
+                    trx_db.TRXTxPower = pdata[9]
+                    trx_db.TRXDataRate = pdata[10]
+                    trx_db.TRXFreq = pdata[11]
+                    db.session.add(trx_db)
+                    db.session.commit()
+                else:
+                    errormsg='数据错误'
+            except:
+                errormsg='数据解析失败'
+        except:
+            errormsg = '接收失败'
+    except:
+        errormsg = '发送失败'
+    data = trx_db.as_dict()
+    print data
+    data['errormsg']=errormsg
+    return json.dumps(data)
 
 @main.route('/bs/<bsid>/<trxid>/push_trxcfg',methods=['GET', 'POST'])
 @login_required

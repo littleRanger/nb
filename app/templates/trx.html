@@ -124,6 +124,7 @@
                   <div class="col-sm-8">
 				    <select class="form-control" id="trx_port" name="TRXPort">
                       <option value="1">1</option>
+                      <option value="6">6</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
                      </select>
@@ -133,6 +134,7 @@
 				<label for="trx_TxPower" class="col-sm-4 control-label">发送功率</label>
 				<div class="col-sm-8">
 				    <select class="form-control" id="trx_TxPower" name="TRXTxPower">
+                      <option value="7">7</option>
                       <option value="1">1</option>
                       <option value="50" >50</option>
                       <option value="3">3</option>
@@ -144,6 +146,7 @@
 				<div class="col-sm-8">
 				    <select class="form-control" id="trx_DataRate" name="TRXDataRate">
                       <option value="1">1</option>
+                      <option value="8">8</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
                      </select>
@@ -153,6 +156,7 @@
 				<label for="trx_Freq" class="col-sm-4 control-label">频率</label>
 				<div class="col-sm-8">
 				    <select class="form-control" id="trx_Freq" name="TRXFreq">
+                      <option value="9">9</option>
                       <option value="1">1</option>
                       <option value="2" >2</option>
                       <option value="3">3</option>
@@ -252,6 +256,10 @@
             $("#trx_TxPower").val(obj.TRXTxPower);
             $("#trx_DataRate").val(obj.TRXDataRate);
             $("#trx_Freq").val(obj.TRXFreq);
+            if(obj.errormsg!=0)
+            {
+                alert(obj.errormsg);
+            }
         });
     }
 
