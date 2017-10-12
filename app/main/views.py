@@ -529,24 +529,31 @@ def PullTrxCfg(bsid,trxid):
     value = (0x88, 0x88, 0x22, int(bsid),int(trxid),0)
     s = struct.Struct('!3BHIH')
     d = s.pack(*value)
-    errormsg=0
+    errormsg=''
     try:
         ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
                           (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), d)
         try:
             rowdata = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
-            strt = struct.Struct('!3BHIH10s8s4H')
+            strt = struct.Struct('=3BHIH10s8s4H')
             print "a"
             # wait for a bscfg msg from bs wait time:
             try:
                 pdata = strt.unpack(rowdata)
-                print "b"
-                if pdata[0] is not 0x88 or pdata[1] is not 0x88 or \
-                                pdata[2] is not 0x22 or \
-                                pdata[3] is not int(bsid) or\
-                                pdata[4] is not int(trxid):
-                    trx_db.trx_name = pdata[6]
-                    trx_db.TRXIP = pdata[7]
+                print pdata
+                if pdata[0] is 0x88 or pdata[1] is 0x88 or \
+                                pdata[2] is 0x22 or \
+                                pdata[3] is int(bsid) or\
+                                pdata[4] is int(trxid):
+                    # namex=pdata[6].strip('\x00')
+                    # print type(namex)
+                    # print len(namex)
+                    # for i in range(len(namex)):
+                    #     print i,namex[i]
+                    # trx_db.trx_name = namex
+                    print pdata[6].strip('\x00')
+
+                    trx_db.TRXIP = IPy.IP(int(pdata[7],16)).net()
                     trx_db.TRXPort = pdata[8]
                     trx_db.TRXTxPower = pdata[9]
                     trx_db.TRXDataRate = pdata[10]

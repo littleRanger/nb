@@ -97,7 +97,7 @@
 </nav>
 <div>
 	{% for message in get_flashed_messages() %}
-	<div class="alert alert-warning">
+	<div class="alert alert-warning" id="flash_alert">
 		{{message}}
 	</div>
 	{% endfor %}
@@ -250,6 +250,7 @@
 	function pulltrxcfg() {
         $.get(window.location+"/pull_trxcfg", function (data) {
             var obj=eval("("+data+")");
+{#            alert(obj.trx_name);#}
             $("#ent_trx_name").val(obj.trx_name);
             $("#trx_IP").val(obj.TRXIP);
             $("#trx_port").val(obj.TRXPort);
@@ -259,6 +260,9 @@
             if(obj.errormsg!=0)
             {
                 alert(obj.errormsg);
+            }
+            else {
+                alert("获取配置成功！");
             }
         });
     }
@@ -380,8 +384,12 @@
             $("#trx_TxPower").val(-1);
             $("#trx_DataRate").val(-1);
             $("#trx_Freq").val(-1);
+           setTimeout(fucfade,2000);
 {#        $("#submitform").attr("disabled","disabled");#}
 
         });
+    function fucfade(){
+        $("#flash_alert").hide(1000);
+    }
 </script>
 </html>

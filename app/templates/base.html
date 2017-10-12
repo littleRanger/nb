@@ -76,14 +76,25 @@
 		margin-left:0;
 		padding:3% 2%;
 	}
+	#configleft form label{
+		font-weight:normal;
+	}
 	.panel-default > .panel-heading {
-	  color: #333;
+	  color: #000;
 	  font-size:16px;
+	  font-weight:500;
 	  background-color: #fff;
 	  border-color: #fff;
 	}
 	.sub-panelheading-font{
 		font-size:14px;
+	}
+	.panel-reset{
+		border:0;
+		border-radius:0;
+	}
+	.panel-body table{
+		color:#666;
 	}
     .right-float{
         float:right;
@@ -114,7 +125,7 @@
 		color: #fff;
 	}
 	.black{
-		background-color:#333;
+		background-color:#283643;
 		color:#f3f3f3 !important;
 	}
 	.gray{
@@ -169,68 +180,68 @@
         <form class="form-horizontal black" method="post" action="/bs/{{bs}}/push_bscfg" >
 			  <fieldset>
 			  <div class="form-group">
-				<label for="inputEmail3" class="col-sm-5 control-label">基站编号</label>
+				<label for="1" class="col-sm-5 control-label">基站编号</label>
 				<div class="col-sm-6">
 					<input type="text" class="form-control" id="1" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">基站IP1</label>
+				<label for="2" class="col-sm-5 control-label">基站IP1</label>
 				<div  class="col-sm-6">
 				  <input type="text" class="form-control" id="2" />
 				</div>
 			  </div>
                   	  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">端口号1</label>
+				<label for="3" class="col-sm-5 control-label">端口号1</label>
 				<div id="d1" class="col-sm-6">
 				  <input type="text" class="form-control" id="3"  autocomplete="off" onblur="validate()"/><span id="s3" ></span>
 				</div>
 			  </div>
                   <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">基站IP2</label>
+				<label for="4" class="col-sm-5 control-label">基站IP2</label>
 				<div  class="col-sm-6">
 				  <input type="text" class="form-control" id="4" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">端口号2</label>
+				<label for="5" class="col-sm-5 control-label">端口号2</label>
 				<div id="d1" class="col-sm-6">
 				  <input type="text" class="form-control" id="5"  autocomplete="off" onblur="validate()"/><span id="s5" ></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">上行子帧时间</label>
+				<label for="6" class="col-sm-5 control-label">上行子帧时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="6"  autocomplete="off" onblur="validate()"/><span id="s6"></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">上行子帧数目</label>
+				<label for="7" class="col-sm-5 control-label">上行子帧数目</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="7"  autocomplete="off" onblur="validate()"/><span></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">上行竞争时间</label>
+				<label for="8" class="col-sm-5 control-label">上行竞争时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="8"  autocomplete="off" />
 				</div>
 			  </div>
               <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧时间</label>
+				<label for="9" class="col-sm-5 control-label">下行子帧时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="9"  autocomplete="off" />
 				</div>
 			  </div>
 
               <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧数目</label>
+				<label for="11" class="col-sm-5 control-label">下行子帧数目</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="11"  autocomplete="off" />
 				</div>
 			  </div>
               <div class="form-group">
-				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧序号</label>
+				<label for="12" class="col-sm-5 control-label">下行子帧序号</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="12"  autocomplete="off" />
 				</div>
@@ -248,7 +259,7 @@
   <div id="contentright">
 	<div class="row">
 		<div class="col-md-12">
-			<div class="panel panel-default">
+			<div class="panel panel-default panel-reset">
 				<!-- Default panel contents -->
 				 <div class="panel-heading">| 当前通信状态
 			<!--	{% if current_user.is_admin() %}
@@ -289,10 +300,10 @@
 					</table>
 				 </div>
 			</div>
-			<div class="panel panel-default">
+			<div class="panel panel-default panel-reset">
 				<div class="panel-heading">
 					| 通道
-					<a class="right-float sub-panelheading-font" href="#" onclick="addtrx()">
+					<a class="right-float sub-panelheading-font" onclick="addtrx()">
 						添加通道 <span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</div>
@@ -301,9 +312,9 @@
 				</div>
 				<table class="table">
 					<tr>
-						<th class="td-width2">通道ID</th>
-						<th class="td-width2">通道Name</th>
-						<th class="td-width2">终端数</th>
+						<td class="td-width2">通道ID</td>
+						<td class="td-width2">通道Name</td>
+						<td class="td-width2">终端数</td>
 					</tr>
 				</table>
 			</div>
@@ -376,9 +387,9 @@ function addtrx(){
 </script>
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
-    <button type="button" class="btn btn-default" onclick="">
-        <span class="glyphicon glyphicon glyphicon-zoom-in"></span>
-    </button>
+    <a onclick="">
+        <span class="glyphicon glyphicon glyphicon-zoom-in"></span>&nbsp;&nbsp;
+    </a>
 </div>
 </script>
 
@@ -431,7 +442,7 @@ xmlhttp.onreadystatechange = function()
             td[0].innerHTML = obj[i].trxid;
             td[1].innerHTML = obj[i].trx_name;
             td[2].innerHTML = obj[i].ssnum + document.getElementById('html_template').innerHTML;
-            td[2].getElementsByTagName("button")[0].onclick = function (num) {
+            td[2].getElementsByTagName("a")[0].onclick = function (num) {
                 return function () {
                     url = window.location.href + "/" + obj[num].trxid;
                     window.location = url;
