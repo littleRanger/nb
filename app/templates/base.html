@@ -154,8 +154,8 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse blue" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.index')}}">首页</a></li>	  
-          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
+          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.page_index')}}">首页</a></li>
+          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.page_base',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
       </ul>
       <ul class="nav navbar-nav right-float" id="exit">
           {% if current_user.is_authenticated %}
@@ -177,7 +177,7 @@
   </div>
   <div class="black" id="configleft">
 		<div id="sidebtn" href=""><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></div>
-        <form class="form-horizontal black" method="post" action="/bs/{{bs}}/push_bscfg" >
+        <form class="form-horizontal black" method="post" action="/bs/{{bs}}/push_bscfg" onsubmit="validate_base_cfg()">
 			  <fieldset>
 			  <div class="form-group">
 				<label for="1" class="col-sm-5 control-label">基站编号</label>
@@ -249,8 +249,8 @@
 
 			  <div class="form-group">
 				<div class="col-sm-offset-5 col-sm-6">
-				  <button type="button" class="btn btn-default form-control" onclick="pullbscfg()">获取</button>
-				  <button type="button" class="btn btn-default form-control" onclick="">修改</button>
+				  <button type="button" class="btn btn-default form-control" onclick="pullbscfg()">获取配置</button>
+				  <button type="button" class="btn btn-default form-control" onclick="">修改配置</button>
 				</div>
 			  </div>
 			  </fieldset>

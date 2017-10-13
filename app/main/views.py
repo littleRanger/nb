@@ -12,6 +12,7 @@ from .forms import addBaseForm, BaseForm, TrxForm, SSForm, mform
 import struct
 import IPy
 import socket
+import time
 # packfmt={
 #   1000:"", #bs add
 #   1001:"", #bs pull
@@ -25,12 +26,11 @@ import socket
 '''
 index
 index data
-add bs
 '''
 #index & index_data
 @main.route('/', methods=['GET','POST'])
 @login_required
-def index():
+def page_index():
     bsnum=BSConfig.query.filter_by(active=True).count()
     print bsnum
     if bsnum%5==0:
@@ -59,6 +59,58 @@ def page_index_data():#get basenum&its config info
     d = [dict(zip(key,value)) for value in t]
     #d= [{'num':'30','id':2},{'num':40,'id':3}]
     print d
+    return json.dumps(d)
+
+'''base page
+page    --- /bs/<bsid>
+page's data ---/bs/<bsid>/base_data
+add trx ---/bs/<bsid>/addtrx
+'''
+@main.route('/bs/<bsid>', methods=['GET','POST'])
+@login_required
+def page_base(bsid):
+    id = int(bsid)
+    bs = BSConfig.query.filter_by(BSID=id).first()
+    if bs == None:
+        return render_template('404.html'), 404
+    return render_template('base.html', bsid=id, msg=0)
+
+@main.route('/bs/<bsid>/base_data',methods = ['GET','POST'])
+@login_required
+def page_base_data(bsid):
+    bsconfig = BSConfig.query.filter_by(BSID=int(bsid)).first()
+    trxNum = TRXConfig.query.filter_by(BS_ID=int(bsid)).count()
+    trx = TRXConfig.query.filter_by(BS_ID=int(bsid)).all()
+    bscfg=bsconfig.as_dict()
+    key=('trxid', 'trx_name','ssnum')
+    t = ((trx[i].TRXID, trx[i].trx_name, SSConfig.query.filter_by(TRX_ID=trx[i].TRXID).count()) for i in range(trxNum))
+    d = [dict(zip(key,value)) for value in t]
+    d.append(bscfg)
+    print d
+    p= [{'num':'30','id':2},{'num':40,'id':3}]
+    return json.dumps(d)
+
+'''
+trx url
+trx data
+'''
+
+@main.route('/bs/<bsid>/<trxid>', methods=['GET','POST'])
+@login_required
+def page_trx(bsid,trxid):
+    return render_template('trx.html', bs=int(bsid),trx=int(trxid))
+
+@main.route('/bs/<bsid>/<trxid>/data', methods=['GET','POST'])
+@login_required
+def page_trx_data(bsid,trxid):
+    tr = TRXConfig.query.filter_by(TRXID=int(trxid)).first()
+    terminal = tr.SSs
+    #print terminal
+    #print terminal[0].ss_name
+    d = [{ 'ss_name': t.ss_name, 'ssip': t.SSIP } for t in terminal]
+    d.append(tr.as_dict())
+    #print d
+    #d=[{'ssid':550,},{'ssid':5690,},{'ssid':4565},{'trxIp':'192.168.1.156','trxPort':'8080'}]
     return json.dumps(d)
 
 @main.route('/test', methods=['GET','POST'])
@@ -113,9 +165,14 @@ def test():
            #--7     dlPacketTime
            #--8     ulCompetitionSectionTime
 '''
-@main.route('/addbase/check_bsname', methods=['POST'])
+
+'''
+addbase/addbase_datacheck
+addbase
+'''
+@main.route('/addbase/addbase_datacheck', methods=['POST'])
 @login_required
-def check_bs_name():
+def addbase_DataCheck():
     print request.form['bs_name']
     B = BSConfig.query.filter_by(bs_name=request.form['bs_name']).first()
     if B is not None:
@@ -125,21 +182,21 @@ def check_bs_name():
 
 @main.route('/addbase', methods=['GET','POST'])
 @login_required
-def add_bs():
+def addbase():
     if request.method=='GET':
         return render_template('addbase.html')
     else:
-        print request.form['bs_name']
-        print request.form['BSIP1']
-        print request.form['BSPort1']
-        print request.form['BSIP2']
-        print request.form['BSPort2']
-        print request.form['ulPacketTime']
-        print request.form['ulPacketNum']
-        print request.form['dlPacketTime']
-        print request.form['dlLogicSubFrameNum']
-        print request.form['dlLogicSubFrameIdx']
-        print request.form['ulCompetitionSectionTime']
+        # print request.form['bs_name']
+        # print request.form['BSIP1']
+        # print request.form['BSPort1']
+        # print request.form['BSIP2']
+        # print request.form['BSPort2']
+        # print request.form['ulPacketTime']
+        # print request.form['ulPacketNum']
+        # print request.form['dlPacketTime']
+        # print request.form['dlLogicSubFrameNum']
+        # print request.form['dlLogicSubFrameIdx']
+        # print request.form['ulCompetitionSectionTime']
         newbs = BSConfig(bs_name=request.form['bs_name'], \
                          BSIP1=request.form['BSIP1'],\
                          BSPort1=request.form['BSPort1'],\
@@ -176,9 +233,9 @@ def add_bs():
                 #flash('successfully received response!')
                 strt_b = struct.Struct('!4s')
                 d_b = strt_b.unpack(data)
-                print type(d_b)
-                print type(d_b[0])
-                print d_b[0]
+                # print type(d_b)
+                # print type(d_b[0])
+                # print d_b[0]
                 if d_b[0]=='Base':
                     flash('config succeded!')
                 else:
@@ -191,39 +248,156 @@ def add_bs():
             db.session.delete(newbs)
             db.session.commit()
             flash('failed!')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.page_index'))
 
-'''base page
-page    --- /bs/<bsid>
-page's data ---/bs/<bsid>/base_data
-push bscfg ---/bs/<bsid>/push_bscfg
-pull bscfg ---/bs/<bsid>/pull_bscfg
-add trx ---/bs/<bsid>/addtrx
 '''
-@main.route('/bs/<bsid>', methods=['GET','POST'])
+add_trx_DataCheck
+addtrx
+'''
+@main.route('/bs/<bsid>/addtrx_datacheck', methods=['GET', 'POST'])
 @login_required
-def bs(bsid):
-    id = int(bsid)
-    bs = BSConfig.query.filter_by(BSID=id).first()
-    if bs == None:
-        return render_template('404.html'), 404
-    return render_template('base.html', bsid=id, msg=0)
-
-@main.route('/bs/<bsid>/base_data',methods = ['GET','POST'])
-@login_required
-def page_base_data(bsid):
-    bsconfig = BSConfig.query.filter_by(BSID=int(bsid)).first()
-    trxNum = TRXConfig.query.filter_by(BS_ID=int(bsid)).count()
-    trx = TRXConfig.query.filter_by(BS_ID=int(bsid)).all()
-    bscfg=bsconfig.as_dict()
-    key=('trxid', 'trx_name','ssnum')
-    t = ((trx[i].TRXID, trx[i].trx_name, SSConfig.query.filter_by(TRX_ID=trx[i].TRXID).count()) for i in range(trxNum))
-    d = [dict(zip(key,value)) for value in t]
-    d.append(bscfg)
+def addtrx_DataCheck(bsid, trxid):
+    #value check
+    d={}
+    # t=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
+    bss=BSConfig.query.filter_by(BSID=int(bsid)).first()
+    trx_names=[b.trx_name for b in bss.TRXs]
+    trx_IPs=[b.TRXIP for b in bss.TRXs]
+    print trx_names
+    trx_name = request.form['trx_name']
+    trx_ip = request.form['trx_ip']
+    if (trx_name not in trx_names):
+        d['trx_name'] = 0
+    else:
+        d['trx_name'] = 2
+    if  (trx_ip not in trx_IPs):
+        d['trx_ip'] = 0
+    else:
+        d['trx_ip'] = 2
     print d
-    p= [{'num':'30','id':2},{'num':40,'id':3}]
     return json.dumps(d)
 
+@main.route('/bs/<bsid>/addtrx', methods = ['GET', 'POST'])
+@login_required
+def addtrx(bsid):
+    bs = BSConfig.query.filter_by(BSID=int(bsid)).first()
+    if request.method == "GET":
+        return render_template('addtrx.html', bsid=int(bsid))
+    else:
+        trx = TRXConfig(trx_name = request.trx_name,\
+                        TRXIP    = request.TRXIP,\
+                        TRXPort  = request.TRXPort,\
+                        TRXTxPower = request.TRXTxPower,\
+                        TRXDataRate = request.TRXDataRate,\
+                        TRXFreq     = request.TRXFreq,\
+                        BS_ID      = int(bsid))
+        db.session.add(trx)
+        db.session.commit()
+        success=0
+        try:
+            #pack data
+            struct_type = struct.Struct('!3BHIH10s8s4H')
+            value=(0x88, 0x88, 0x13, trx.BS_ID, trx.TRXID, 0, trx.trx_name.encode('utf-8'), IPy.IP(trx.TRXIP).strHex()[2:], trx.TRXPort, trx.TRXTxPower, trx.TRXDataRate, trx.TRXFreq)
+            data = struct_type.pack(*value)
+            try:
+                ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
+                                  (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), data)
+                try:
+                    recv_data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+                    strt_b = struct.Struct('!4s')
+                    d_b = strt_b.unpack(recv_data)
+                    if d_b=='aaaa':
+                        success = 0
+                    else:
+                        success = 1
+                except socket.error, e:
+                    success = 1
+                    flash(e)
+                    #recv error
+
+            except socket.error, e:
+                #send error
+                success = 1
+                flash(socket.error)
+        except socket.error, e:
+            #pack error
+            success = 1
+            flash(socket.error)
+        if success==1:
+            flash('failed!')
+            db.session.delete(trx)
+            return render_template('addtrx.html', bsid=int(bsid), form=form)
+
+        return redirect(url_for('main.page_base', bsid=int(bsid)))
+
+
+'''
+addss_datacheck
+addss
+'''
+#add ss / registe ss
+@main.route('/bs/<bsid>/<trxid>/addss',methods = ['GET','POST'])
+@login_required
+def addss(bsid,trxid):
+    bsid, trxid= int(bsid), int(trxid)
+    trx = TRXConfig.query.filter_by(TRXID=trxid).first()
+    #print trx.SSs
+    SS_Names = [ x.ss_name for x in trx.SSs]
+    SS_IPs = [ x.SSIP for x in trx.SSs]
+    #print SS_Names, SS_IPs
+    form = SSForm()
+    if form.validate_on_submit():
+        if form.ss_name.data in SS_Names or form.ssIP in SS_IPs:
+            form.errors='trx_name has existed!'
+            return redirect(url_for('main.page_trx',bsid=int(bsid),trxid=int(trxid)))
+
+        t = SSConfig(ss_name=form.ss_name.data,SSIP=form.ssIP.data,TRX_ID=trxid)
+        db.session.add(t)
+        db.session.commit()
+        success = 0
+        try:
+            # pack data
+            struct_type = struct.Struct('!3BHIH10s8s')
+            value = (0x88, 0x88, 0x13, bsid, trxid, t.SSID, t.ss_name.encode('utf-8'), IPy.IP(t.SSIP).strHex()[2:])
+            data = struct_type.pack(*value)
+            try:
+                ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
+                                  (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), data)
+                try:
+                    recv_data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+                    strt_b = struct.Struct('!4s')
+                    d_b = strt_b.unpack(recv_data)
+                    if d_b == 'aaaa':
+                        success = 0
+                    else:
+                        success = 1
+
+                except socket.error, e:
+                    success = 1
+                    error_msg = e
+                    print type(error_msg)
+                    # flash(error_msg)
+                    # recv error
+            except socket.error, e:
+                # send error
+                success = 1
+                flash(socket.error)
+        except socket.error, e:
+            # pack error
+            success = 1
+            flash(socket.error)
+        if success == 1:
+            flash('add ss failed!')
+            db.session.delete(t)
+            return render_template('addss.html', bsid=bsid, form=form, trxid=trxid)
+        return redirect(url_for('main.page_trx',bsid=int(bsid),trxid=int(trxid)))
+    else:
+        return render_template('addss.html',form=form,bsid=bsid,trxid=trxid)
+
+
+'''
+
+'''
 @main.route('/bs/<bsid>/pull_bscfg',methods=['GET', 'POST'])
 @login_required
 def pull_bscfg(bsid):
@@ -244,12 +418,11 @@ def pull_bscfg(bsid):
             #wait for a bscfg msg from bs wait time: 15s
             try:
                 pdata= strt.unpack(rowdata)
-                if pdata[0] is not 0x88 or pdata[1] is not 0x88 or\
-                    pdata[2] is not 0x21 or\
-                    pdata[3] is not b.BSID:
+                if pdata[0] is  0x88 and pdata[1] is  0x88 and\
+                    pdata[2] is 0x21 and pdata[3] is  b.BSID:
                     b.bs_name = pdata[6]
-                    b.BSIP1 = pdata[7]
-                    b.BSIP2 = pdata[8]
+                    b.BSIP1 = IPy.IP(int(pdata[7],16)).net()
+                    b.BSIP2 = IPy.IP(int(pdata[8],16)).net()
                     b.BSPort1 = pdata[9]
                     b.BSPort2 = pdata[10]
                     b.ulPacketTime = pdata[11]
@@ -277,6 +450,23 @@ def pull_bscfg(bsid):
     data['errors']=errormsg
     print data
     return json.dumps(data)
+
+
+@main.route('/bs/<bsid>/push_basecfg_datacheck', methods=['GET', 'POST'])
+@login_required
+def Push_BaseCfg_DataCheck(bsid, trxid):
+    # value check
+    d = {}
+    bs = BSConfig.query.filter_by(BSID=int(bsid)).first()
+    bs_names = [name for name in bs.bs_name]
+    trx_name = request.form['bs_name']
+    if (trx_name == bs.bs_name) or (trx_name not in trx_names):
+        d['trx_name'] = 0
+    else:
+        d['trx_name'] = 2
+    print d
+    return json.dumps(d)
+
 
 @main.route('/bs/<bsid>/push_bscfg',methods=['GET', 'POST'])
 @login_required
@@ -350,167 +540,14 @@ def push_bscfg(bsid):
         except socket.error, e:
             errormsg = 'send:'+e.message
         if errormsg=='none':
-            return redirect(url_for('main.bs',form=form, bsid=int(bsid), msg=1))
+            return redirect(url_for('main.page_base',form=form, bsid=int(bsid), msg=1))
         else:
             db.session.rollback()
             flash(errormsg)
-            return redirect(url_for('main.bs',form=form, bsid=int(bsid), msg=2))
+            return redirect(url_for('main.pagebase',form=form, bsid=int(bsid), msg=2))
     else:
-        return render_template('bs.html',form=form,bsid=int(bsid),msg=2)
+        return render_template('base.html',form=form,bsid=int(bsid),msg=2)
 
-@main.route('/bs/<bsid>/addtrx', methods = ['GET', 'POST'])
-@login_required     
-def add_trx(bsid):
-    bs = BSConfig.query.filter_by(BSID=int(bsid)).first()
-    form = TrxForm()
-    if form.validate_on_submit():
-        #value test
-        for trx_t in bs.TRXs:
-            if trx_t.trx_name==form.trx_name.data:
-                form.errors = 'aaa'
-                print form.errors
-                return render_template('addtrx.html', bsid=int(bsid), form=form)
-        #send to bs
-        #write to db
-        trx = TRXConfig(trx_name=form.trx_name.data,
-                TRXIP       = form.TRXIP.data,
-                TRXPort     = form.TRXPort.data,
-                TRXTxPower  = form.TRXTxPower.data,
-                TRXDataRate = form.TRXDataRate.data,
-                TRXFreq     = form.TRXFreq.data,
-                BS_ID       = int(bsid))
-        db.session.add(trx)
-        db.session.commit()
-        success=0
-        try:
-            #pack data
-            struct_type = struct.Struct('!3BHIH10s8s4H')
-            value=(0x88, 0x88, 0x13, trx.BS_ID, trx.TRXID, 0, trx.trx_name.encode('utf-8'), IPy.IP(trx.TRXIP).strHex()[2:], trx.TRXPort, trx.TRXTxPower, trx.TRXDataRate, trx.TRXFreq)
-            data = struct_type.pack(*value)
-            try:
-                ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
-                                  (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), data)
-                try:
-                    recv_data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
-                    strt_b = struct.Struct('!4s')
-                    d_b = strt_b.unpack(recv_data)
-                    if d_b=='aaaa':
-                        success = 0
-                    else:
-                        success = 1
-                except socket.error, e:
-                    success = 1
-                    flash(e)
-                    #recv error
-
-            except socket.error, e:
-                #send error
-                success = 1
-                flash(socket.error)
-        except socket.error, e:
-            #pack error
-            success = 1
-            flash(socket.error)
-        if success==1:
-            flash('failed!')
-            db.session.delete(trx)
-            return render_template('addtrx.html', bsid=int(bsid), form=form)
-
-        return redirect(url_for('main.bs', bsid=int(bsid)))
-    else:
-        return render_template('addtrx.html',bsid=int(bsid),form=form)
-
-
-'''
-trx url
-
-trx data
-
-add terminal
-
-trx config---pull cfg
-          ---push cfg
-
-
-'''
-
-@main.route('/bs/<bsid>/<trxid>', methods=['GET','POST'])
-@login_required
-def trx(bsid,trxid):
-    return render_template('trx.html', bs=int(bsid),trx=int(trxid))
-
-
-@main.route('/bs/<bsid>/<trxid>/data', methods=['GET','POST'])
-@login_required
-def trx_data(bsid,trxid):
-    tr = TRXConfig.query.filter_by(TRXID=int(trxid)).first()
-    terminal = tr.SSs
-    #print terminal
-    #print terminal[0].ss_name
-    d = [{ 'ss_name': t.ss_name, 'ssip': t.SSIP } for t in terminal]
-    d.append(tr.as_dict())
-    #print d
-    #d=[{'ssid':550,},{'ssid':5690,},{'ssid':4565},{'trxIp':'192.168.1.156','trxPort':'8080'}]
-    return json.dumps(d)
-
-#add ss / registe ss
-@main.route('/bs/<bsid>/<trxid>/addss',methods = ['GET','POST'])
-@login_required
-def addss(bsid,trxid):
-    bsid, trxid= int(bsid), int(trxid)
-    trx = TRXConfig.query.filter_by(TRXID=trxid).first()
-    #print trx.SSs
-    SS_Names = [ x.ss_name for x in trx.SSs]
-    SS_IPs = [ x.SSIP for x in trx.SSs]
-    #print SS_Names, SS_IPs
-    form = SSForm()
-    if form.validate_on_submit():
-        if form.ss_name.data in SS_Names or form.ssIP in SS_IPs:
-            form.errors='trx_name has existed!'
-            return redirect(url_for('main.trx',bsid=int(bsid),trxid=int(trxid)))
-
-        t = SSConfig(ss_name=form.ss_name.data,SSIP=form.ssIP.data,TRX_ID=trxid)
-        db.session.add(t)
-        db.session.commit()
-        success = 0
-        try:
-            # pack data
-            struct_type = struct.Struct('!3BHIH10s8s')
-            value = (0x88, 0x88, 0x13, bsid, trxid, t.SSID, t.ss_name.encode('utf-8'), IPy.IP(t.SSIP).strHex()[2:])
-            data = struct_type.pack(*value)
-            try:
-                ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
-                                  (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), data)
-                try:
-                    recv_data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
-                    strt_b = struct.Struct('!4s')
-                    d_b = strt_b.unpack(recv_data)
-                    if d_b == 'aaaa':
-                        success = 0
-                    else:
-                        success = 1
-
-                except socket.error, e:
-                    success = 1
-                    error_msg = e
-                    print type(error_msg)
-                    # flash(error_msg)
-                    # recv error
-            except socket.error, e:
-                # send error
-                success = 1
-                flash(socket.error)
-        except socket.error, e:
-            # pack error
-            success = 1
-            flash(socket.error)
-        if success == 1:
-            flash('add ss failed!')
-            db.session.delete(t)
-            return render_template('addss.html', bsid=bsid, form=form, trxid=trxid)
-        return redirect(url_for('main.trx',bsid=int(bsid),trxid=int(trxid)))
-    else:
-        return render_template('addss.html',form=form,bsid=bsid,trxid=trxid)
 
 #pull trx config from db
 # @main.route('/bs/<bsid>/<trxid>/pull_trxcfg',methods = ['GET','POST'])
@@ -627,7 +664,7 @@ def Push_TrxCfg(bsid,trxid):
     except:
         db.session.rollback()
         flash('failed!')
-    return redirect(url_for('main.trx', bsid=int(bsid), trxid=int(trxid)))
+    return redirect(url_for('main.page_trx', bsid=int(bsid), trxid=int(trxid)))
 
 @main.route('/bs/<bsid>/<trxid>/push_trxcfg_DataCheck', methods=['GET', 'POST'])
 @login_required
@@ -651,6 +688,7 @@ def Push_TrxCfg_DataCheck(bsid, trxid):
         d['trx_ip'] = 2
     print d
     return json.dumps(d)
+
         
 
 

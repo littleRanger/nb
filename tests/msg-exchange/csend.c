@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
             perror("socket");  
             return 1;  
         }  
-        
+        //memcpy(buf,"Base");
         memcpy(buf,&p,sizeof(p));  
         printf("sending: '%s'/n",buf);  
         sin_size=sizeof(struct sockaddr_in);  

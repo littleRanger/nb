@@ -81,9 +81,9 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.bs',bsid=bs)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bs}}</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.trx',bsid=bs,trxid=trx)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trx}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_index')}}">首页</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_base',bsid=bs)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bs}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_trx',bsid=bs,trxid=trx)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trx}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
 		  {% if current_user.is_authenticated %}
@@ -189,21 +189,21 @@
  		  <div class="panel-body">
     		<table class="table-width">
 				<tr>
-					<td class="td-width">TRX-Name</td>
+					<td class="td-width">通道编号</td>
 					<td class="td-width">--</td>
-					<td class="td-width td-padding  td-border">TRXTxPower</td>
+					<td class="td-width td-padding  td-border">发射功率</td>
 					<td class="td-padding">--</td>
 				</tr>
 				<tr>
-					<td >TRXIP</td>
+					<td >通道IP</td>
 					<td >--</td>
-					<td class="td-padding td-border">trxDataRate</td>
+					<td class="td-padding td-border">通道速率</td>
 					<td class="td-padding ">--</td>
 				</tr>
 				<tr>
-					<td >TRXPort</td>
+					<td >端口</td>
 					<td >--</td>
-					<td class="td-padding td-border">trxFreq</td>
+					<td class="td-padding td-border">频率</td>
 					<td class="td-padding">--</td>
 				</tr>
 			</table>
@@ -270,7 +270,7 @@
     function validate_trx_cfg() {
 {#        验证bianhao#}
 {#        var reg=new RegExp("^\w+$");#}
-        if(""==$("#ent_trx_name"))
+        if(""==$("#ent_trx_name").val())
         {
             alert("编号不能为空！");
             return false;
@@ -287,7 +287,7 @@
             return false;
         }
 
-        if(""==$("#ent_trx_name").val() || (""==$("#trx_IP").val()) || (null==$("#trx_port").val()) || (null==$("#trx_TxPower").val())
+        if( ""==$((null==$("#trx_port").val()))|| (null==$("#trx_TxPower").val())
         || (null==$("#trx_DataRate").val())
         || (null==$("#trx_Freq").val()) )
         {
@@ -302,6 +302,7 @@
                 trx_ip:$("#trx_IP").val()
             },
             function (data, status) {
+			  if(status == 'success'){
                 var txt=eval("("+data+")");
                 if(txt.trx_ip!=0)
                 {
@@ -313,6 +314,9 @@
                     alert("编号已存在");
                     flag=-1;
                 }
+			  }else{
+				flag = -1;
+			  }
             });
         $.ajaxSettings.async=true;
 	    if(flag==0)
