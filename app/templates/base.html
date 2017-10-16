@@ -12,25 +12,11 @@
 		padding-top:70px;
 		background-color:#f3f3f3;
 	}
-	
-	.container-fluid{
-		padding-right:0;
-		padding-left:0;
-		margin-right:auto;
-		margin-left:auto;
-	}
-	.navbar-fixed-top{
-		top:0;
-		border-width:0;
-	}
-	.navbar-header{
-		float:left;
-		padding-left:20px;
-		width:23%;
-	}
 	.navbar-brand {
-		height:60px;
+		color: #fff;
+		width: 200px;
 		text-align: left;
+		height: 60px;
 		font-size: 24px;
 		font-weight: 700;
 		text-transform: uppercase;
@@ -42,60 +28,31 @@
 	}
 	.nav-font-size{
 		font-size:18px;
-		font-weight:500;
-	}
-	.nav li a{
-		color:#fff;
-	}
-	.nav li a:hover{
-		color:#23527c;
 	}
 	.wrapper{
 		position:relative;
 	}
-	#configleft{
+	.config-right{
 		position:absolute;
-		top:-20px;
-		width:23%;
-		height:100%;
-		left:-23%;
-		padding-top:30px;	
+		top:-15px;
+		width:25%;
+		right:0;
+		color:#fff;
+		padding-top:15px;
+		
 	}
 	#sidebtn{
-		width:20px;
-		height:40px;
+		width:50px;
 		position:absolute;
-		top:30px;
-		right:-20px;
-		padding-top:13px;
-		padding-left:3px;
+		top:20px;
+		left:-25px;
 		background-color:#cfcfcf;
-		color:#000;
 	}
-	#contentright{
-		margin-left:0;
+	#left{
+		margin-right:25%;
 		padding:3% 2%;
 	}
-	#configleft form label{
-		font-weight:normal;
-	}
-	.panel-default > .panel-heading {
-	  color: #000;
-	  font-size:16px;
-	  font-weight:500;
-	  background-color: #fff;
-	  border-color: #fff;
-	}
-	.sub-panelheading-font{
-		font-size:14px;
-	}
-	.panel-reset{
-		border:0;
-		border-radius:0;
-	}
-	.panel-body table{
-		color:#666;
-	}
+    
     .right-float{
         float:right;
     }
@@ -111,7 +68,7 @@
         padding:0 4%;
     }
     .td-border{
-        border-left:1px solid #eee;
+        border-left:1px solid #ccc;
     }
     .table-width{
         width:100%;
@@ -120,28 +77,24 @@
         border:0;
         padding:0;
     }
+    .map{
+        height:150px;
+        background-image:url(/static/1.png);
+        font-size:1.2em;
+        color:#ff0000;
+        padding:1% 1%;
+    }
 	.green {
 		background-color: #1CC09F;
 		color: #fff;
 	}
-	.black{
-		background-color:#283643;
-		color:#f3f3f3 !important;
-	}
-	.gray{
-		background-color:#cfcfcf;
-	}
-	.blue{
-		background-color:#337ab7;
-		color:#f4f4f4 !important;
-	}
 </style>
 </head>
 <body>
-<nav class="navbar navbar-fixed-top">
+<nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header black">
+    <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
@@ -152,12 +105,12 @@
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse blue" id="bs-example-navbar-collapse-1">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.page_index')}}">首页</a></li>
-          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.page_base',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
+          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.index')}}">首页</a></li>
+          <li class=""><a class="nav-vertical-align nav-font-size" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站{{bsid}}</a></li>
       </ul>
-      <ul class="nav navbar-nav right-float" id="exit">
+      <ul class="nav navbar-nav right-float">
           {% if current_user.is_authenticated %}
           <li class=""><a href="{{url_for('auth.logout')}}" class="nav-vertical-align">退出登录</a></li>
         {% else %}
@@ -175,101 +128,100 @@
 	</div>
 	{% endfor %}
   </div>
-  <div class="black" id="configleft">
-		<div id="sidebtn" href=""><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></div>
-        <form class="form-horizontal black" method="post" action="/bs/{{bs}}/push_bscfg" onsubmit="validate_base_cfg()">
+  <div class="config-right green" id="right">
+		<div id="sidebtn" href=""><i class=""></i></div>
+        <form class="form-horizontal" method="post" action="/bs/{{bs}}/push_bscfg" >
 			  <fieldset>
 			  <div class="form-group">
-				<label for="1" class="col-sm-5 control-label">基站编号</label>
+				<label for="inputEmail3" class="col-sm-5 control-label">基站编号</label>
 				<div class="col-sm-6">
 					<input type="text" class="form-control" id="1" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="2" class="col-sm-5 control-label">基站IP1</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">基站IP1</label>
 				<div  class="col-sm-6">
 				  <input type="text" class="form-control" id="2" />
 				</div>
 			  </div>
                   	  <div class="form-group">
-				<label for="3" class="col-sm-5 control-label">端口号1</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">端口号1</label>
 				<div id="d1" class="col-sm-6">
 				  <input type="text" class="form-control" id="3"  autocomplete="off" onblur="validate()"/><span id="s3" ></span>
 				</div>
 			  </div>
                   <div class="form-group">
-				<label for="4" class="col-sm-5 control-label">基站IP2</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">基站IP2</label>
 				<div  class="col-sm-6">
 				  <input type="text" class="form-control" id="4" />
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="5" class="col-sm-5 control-label">端口号2</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">端口号2</label>
 				<div id="d1" class="col-sm-6">
 				  <input type="text" class="form-control" id="5"  autocomplete="off" onblur="validate()"/><span id="s5" ></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="6" class="col-sm-5 control-label">上行子帧时间</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">上行子帧时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="6"  autocomplete="off" onblur="validate()"/><span id="s6"></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="7" class="col-sm-5 control-label">上行子帧数目</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">上行子帧数目</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="7"  autocomplete="off" onblur="validate()"/><span></span>
 				</div>
 			  </div>
 			  <div class="form-group">
-				<label for="8" class="col-sm-5 control-label">上行竞争时间</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">上行竞争时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="8"  autocomplete="off" />
 				</div>
 			  </div>
               <div class="form-group">
-				<label for="9" class="col-sm-5 control-label">下行子帧时间</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧时间</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="9"  autocomplete="off" />
 				</div>
 			  </div>
 
               <div class="form-group">
-				<label for="11" class="col-sm-5 control-label">下行子帧数目</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧数目</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="11"  autocomplete="off" />
 				</div>
 			  </div>
               <div class="form-group">
-				<label for="12" class="col-sm-5 control-label">下行子帧序号</label>
+				<label for="inputPassword3" class="col-sm-5 control-label">下行子帧序号</label>
 				<div class="col-sm-6">
 				  <input type="text" class="form-control" id="12"  autocomplete="off" />
 				</div>
 			  </div>
 
 			  <div class="form-group">
-				<div class="col-sm-offset-5 col-sm-6">
-				  <button type="button" class="btn btn-default form-control" onclick="pullbscfg()">获取配置</button>
-				  <button type="button" class="btn btn-default form-control" onclick="">修改配置</button>
+				<div class="col-sm-offset-4 col-sm-4">
+				  <button type="button" class="btn btn-default form-control" onclick="pullbscfg()">获取</button>
+				</div>
+				<div class="col-sm-4 right-float">
+				  <button type="button" class="btn btn-default form-control" onclick="">修改</button>
 				</div>
 			  </div>
 			  </fieldset>
 		  </form>
   </div>
-  <div id="contentright">
+  <div id="left">
 	<div class="row">
 		<div class="col-md-12">
-			<div class="panel panel-default panel-reset">
+			<div class="panel panel-default">
 				<!-- Default panel contents -->
-				 <div class="panel-heading">| 当前通信状态
-			<!--	{% if current_user.is_admin() %}
+				 <div class="panel-heading">当前通信状态
+					 {% if current_user.is_admin() %}
 					<button class="config-btn right-float" onclick="popConfig()">配置基站
 						<span class="glyphicon glyphicon-hand-right"></span>
 					</button>
-				{%endif%}	
-			-->
-				
-				<a class="right-float" title="点击查看终端位置" href="{{url_for('main.map',bsid=bsid)}}"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span></a>
+					{%endif%}
 				 </div>
 				 <div class="panel-body">
 					<table class="table-width">
@@ -300,21 +252,26 @@
 					</table>
 				 </div>
 			</div>
-			<div class="panel panel-default panel-reset">
+			<div class="panel panel-default map">
+				<a href="{{url_for('main.map',bsid=bsid)}}">点击查看终端位置</a>
+			</div>
+			<div class="panel panel-default">
 				<div class="panel-heading">
-					| 通道
-					<a class="right-float sub-panelheading-font" onclick="addtrx()">
-						添加通道 <span class="glyphicon glyphicon-plus"></span>
-					</a>
+					<h2 class="panel-title">通道</h2>
 				</div>
 				<div class="panel-body">
-					<br />请从下面列表中选择您将访问的通道。<br /><br />
+					<br />请从下面列表中选择您将访问的通道。(若您想重新选择访问基站，请返回上一级。)<br /><br />
+					<button type="button" onclick="(function(){
+								 url_t = window.location+'/addtrx';
+								 window.open(url_t,'_self');
+								 })();">添加通道</button>
+
 				</div>
 				<table class="table">
 					<tr>
-						<td class="td-width2">通道ID</td>
-						<td class="td-width2">通道Name</td>
-						<td class="td-width2">终端数</td>
+						<th class="td-width2">通道ID</th>
+						<th class="td-width2">通道Name</th>
+						<th class="td-width2">终端数</th>
 					</tr>
 				</table>
 			</div>
@@ -324,27 +281,18 @@
 </body>
 <script type="text/javascript">
 {#    弹出右侧窗口#}
-$(document).ready(function(){
-	$("#sidebtn").click(function(){
-		if($(this).hasClass("closed")){
-			$("#configleft").animate({left:"0"});
-			$(this).removeClass("closed");
-			$("#contentright").animate({marginLeft:"23%"});
-		} else {
-			$("#configleft").animate({left:"-23%"});
-			$(this).addClass("closed");
-			$("#contentright").animate({marginLeft:"0"});
-		}
-	});
-});
-
-{# 跳转添加通道页面#}
-function addtrx(){
-	var url_t = window.location+'/addtrx';
-	window.open(url_t,'_self');
-	return false;
-}
-
+    function popConfig(){
+        var config_view = document.getElementById("right");
+        var show_view = document.getElementById("left");
+        if(config_view.className == "config-right-hide"){
+            config_view.className = "config-right";
+            show_view.className = "pop-show-left";
+            //getConfig();
+        }else{
+            config_view.className = "config-right-hide";
+            show_view.className = "";
+        }
+    }
 {#    获取配置信息#}
     function pullbscfg()
     {
@@ -383,13 +331,13 @@ function addtrx(){
         xmlhttp.open("GET",url,true);
         xmlhttp.send();
     }
-
 </script>
+
 <script type="text/template" id="html_template">
 <div class="text-right right-float">
-    <a onclick="">
-        <span class="glyphicon glyphicon glyphicon-zoom-in"></span>&nbsp;&nbsp;
-    </a>
+    <button type="button" class="btn btn-default" onclick="">
+        <span class="glyphicon glyphicon glyphicon-zoom-in"></span>
+    </button>
 </div>
 </script>
 
@@ -406,7 +354,9 @@ xmlhttp.onreadystatechange = function()
     } else {
 
         var msg = {
-        
+        {
+            msg
+        }
     }
         ;
         if (msg == 1) {
@@ -442,7 +392,7 @@ xmlhttp.onreadystatechange = function()
             td[0].innerHTML = obj[i].trxid;
             td[1].innerHTML = obj[i].trx_name;
             td[2].innerHTML = obj[i].ssnum + document.getElementById('html_template').innerHTML;
-            td[2].getElementsByTagName("a")[0].onclick = function (num) {
+            td[2].getElementsByTagName("button")[0].onclick = function (num) {
                 return function () {
                     url = window.location.href + "/" + obj[num].trxid;
                     window.location = url;
