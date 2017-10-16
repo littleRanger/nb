@@ -174,7 +174,7 @@ function validate_trx_cfg() {
         }
         var flag=0;
         $.ajaxSettings.async = false;
-        $.post("/bs/{{ bs }}/addtrx_datacheck",
+        $.post("/bs/{{ bsid }}/addtrx_datacheck",
             {
                 trx_name:$("#ent_trx_name").val(),
                 trx_ip:$("#trx_IP").val()

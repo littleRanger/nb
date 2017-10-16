@@ -82,8 +82,8 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
 		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_index')}}">首页</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_base',bsid=bs)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bs}}</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_trx',bsid=bs,trxid=trx)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trx}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_base',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bsid}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_trx',bsid=bsid,trxid=trxid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trxid}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
 		  {% if current_user.is_authenticated %}
@@ -104,7 +104,7 @@
 </div>
 <div class="content">
 	<div class="config-right-hide" id="right">
-		  <form class="form-horizontal" method="post" action="/bs/{{bs}}/{{ trx }}/push_trxcfg" onsubmit="return validate_trx_cfg()">
+		  <form class="form-horizontal" method="post" action="/bs/{{bsid}}/{{ trxid }}/push_trxcfg" onsubmit="return validate_trx_cfg()">
 			  <fieldset>
 			  <legend>配置通道</legend>
 			  <div class="form-group">
@@ -217,7 +217,7 @@
   		<div class="panel-body">
     		<br />请从下面列表中选择您将访问的终端。(若您想重新选择访问基站 / 通道，请返回首页 / 上一级。)<br /><br />
 			<button type="button" onclick="(function(){
-				window.open(window.location+'/addss','_self');
+				window.open('/bs/{{ bsid }}/{{ trxid }}/addss','_self');
 			})()">添加终端
 			</button>
   		</div>
@@ -248,7 +248,8 @@
 
 {#获取通道配置#}
 	function pulltrxcfg() {
-        $.get(window.location+"/pull_trxcfg", function (data) {
+	    var a="/bs/{{ bsid }}/{{ trxid }}/pull_trxcfg";
+        $.get( a , function (data) {
             var obj=eval("("+data+")");
 {#            alert(obj.trx_name);#}
             $("#ent_trx_name").val(obj.trx_name);
@@ -296,7 +297,7 @@
         }
         var flag=0;
         $.ajaxSettings.async = false;
-        $.post("/bs/{{ bs }}/{{ trx }}/push_trxcfg_DataCheck",
+        $.post("/bs/{{ bsid }}/{{ trxid }}/push_trxcfg_DataCheck",
             {
                 trx_name:$("#ent_trx_name").val(),
                 trx_ip:$("#trx_IP").val()
@@ -355,7 +356,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var url = window.location + "/data";
+        var url =  "/bs/{{ bsid }}/{{ trxid }}/data";
         $.get(url, function (response) {
 		var obj = eval("("+response+")");
 		var tr_num = obj.length;
@@ -384,13 +385,13 @@
             td[1].innerHTML = obj[i].ssip;
         }
        });
-                    $("#trx_port").val(-1);
-            $("#trx_TxPower").val(-1);
-            $("#trx_DataRate").val(-1);
-            $("#trx_Freq").val(-1);
-           setTimeout(fucfade,2000);
-{#        $("#submitform").attr("disabled","disabled");#}
 
+        $("#trx_port").val(-1);
+        $("#trx_TxPower").val(-1);
+        $("#trx_DataRate").val(-1);
+        $("#trx_Freq").val(-1);
+        setTimeout(fucfade,2000);
+{#        $("#submitform").attr("disabled","disabled");#}
         });
     function fucfade(){
         $("#flash_alert").hide(1000);

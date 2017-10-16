@@ -49,9 +49,9 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.index')}}">首页</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.bs',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bsid}}</a></li>
-		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.trx',bsid=bsid,trxid=trxid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trxid}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_index')}}">首页</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_base',bsid=bsid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;基站 {{bsid}}</a></li>
+		  <li class="nav-text"><a class="nav-a" href="{{url_for('main.page_trx',bsid=bsid,trxid=trxid)}}">>&nbsp;&nbsp;&nbsp;&nbsp;通道{{trxid}}</a></li>
       </ul>
 	  <ul class="nav navbar-nav right-float">
 		  {% if current_user.is_authenticated %}
@@ -64,26 +64,82 @@
   </div><!-- /.container-fluid -->
 </nav>
 <div class="content">
-	<form action="{{url_for('main.addss',bsid=bsid,trxid=trxid)}}" method="POST" class="form-horizontal" target="_self"> 
-	</fieldset>
-	<legend>终端模块</legend>
-	<div class="col-md-4">
-		{{wtf.quick_form(form)}}
-                {% if current_user.is_admin() %}
-                <div class="col-sm-offset-4 col-sm-3">
-                  <button id="" type="submit" onclick="ConfigTrx"  class="btn btn-default">submit</button>
-                </div>
-                <div  class="col-sm-3">
-                  <button id="" type="reset"  class="btn btn-default">reset</button>
-                </div>
-                 {% endif %}
-
-	</div>
+	<form action="{{url_for('main.addss',bsid=bsid,trxid=trxid)}}" method="POST" class="form-horizontal" target="_self">
 	<fieldset>
-	</form>
-	<div id="resultDiv"></div>
+	    <legend>终端模块</legend>
+		<form action="" method="post" class="form" role="form">
+				<div class="form-group">
+					<label class="control-label col-sm-1" for="ss_name">终端编号</label>
+					<div class="col-sm-2">
+						<input class="form-control" id="ss_name" name="ss_name" required type="text" value="">
+					</div>
+				</div>
+				<div class="form-group ">
+					<label class="control-label" for="ssIP">终端IP</label>
+					<div class="col-sm-2">
+						<input class="form-control" id="ss_ip" name="ss_ip" type="text" value="">		
+					</div>
+				</div>
+				<div class="col-sm-offset-1 col-sm-1">
+                    <button id="" type="submit"  class="btn btn-default" onsubmit="return validate_ss_cfg()">提交</button>
+                </div>
+                <div  class="col-sm-1">
+                    <button id="" type="reset"  class="btn btn-default">重置</button>
+                </div>
+		</form>
+	</fieldset>
 </div>
 </body>
 <script type="text/javascript">
+function validate_ss_cfg(){
+	if($("#ss_name").val()=="" || $("#ssIP").val()==""){
+		alert("终端配置不能为空")；
+		return false;
+	} 
+	if(!validate_ss_name()){
+		alert("终端编号由数字、字母、下划线组成");
+		return false;
+	}
+	if(!validate_ss_ip()){
+		alert("请填入合法的IP4地址")；
+		return false;
+	}
+	var flag = 0;
+	$.ajax({
+		async: false,
+		type: "POST",
+		url: "",
+		data:{
+			ss_name:$("#ss_name").val(),
+			ss_ip:$("#ss_ip").val()
+		}
+		success: function(data,textStatus){
+			var obj = eval("("+data+")");
+			if(obj.ss_name!=0){
+				alert("编号已存在")；
+				flag = -1;
+			}
+			if(obj.ss_ip!=0){
+				alert("IP已存在");
+				flag = -1;
+			}
+		}
+	});
+	$.ajaxSettings.async = true;
+	if(flag==0) return true;
+	else return false;
+}
+function validate_ss_name(){
+	var reg = /^\w+$/;
+	if(!reg.test($(#ss_name).val())) return false;
+	else return true;
+}
+function validate_ss_ip(){
+	var reg_ip = /\d+\.\d+\.\d+\.\d+/;
+	if(reg_ip.test($(#ss_ip).val())){
+		if(RegExp.$1<256 && RegExp.$2<256 && RegExp.$3<256 && RegExp.$4<256) return true;
+	} 
+	return false;
+}
 </script>
 </html>

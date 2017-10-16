@@ -86,7 +86,7 @@ def page_base_data(bsid):
     t = ((trx[i].TRXID, trx[i].trx_name, SSConfig.query.filter_by(TRX_ID=trx[i].TRXID).count()) for i in range(trxNum))
     d = [dict(zip(key,value)) for value in t]
     d.append(bscfg)
-    print d
+    # print d
     p= [{'num':'30','id':2},{'num':40,'id':3}]
     return json.dumps(d)
 
@@ -98,7 +98,7 @@ trx data
 @main.route('/bs/<bsid>/<trxid>', methods=['GET','POST'])
 @login_required
 def page_trx(bsid,trxid):
-    return render_template('trx.html', bs=int(bsid),trx=int(trxid))
+    return render_template('trx.html', bsid=int(bsid),trxid=int(trxid))
 
 @main.route('/bs/<bsid>/<trxid>/data', methods=['GET','POST'])
 @login_required
@@ -116,10 +116,17 @@ def page_trx_data(bsid,trxid):
 @main.route('/test', methods=['GET','POST'])
 @login_required
 def test():
-    form=mform()
-    code = form['code']
-    api=form['api']
-    return render_template("formtest.html",form=form, api=api,code=code)
+    # t=TRXConfig.query.filter_by(TRXID=12).first()
+    # db.session.delete(t)
+    # form=mform()
+    # code = form['code']
+
+    # api=form['api']
+    t=SSConfig.query.filter_by(SSID=1).first()
+    db.session.delete(t)
+
+    return "ok"
+    # return render_template("formtest.html",form=form, api=api,code=code)
     '''b=BSConfig(bs_name="pfpfp")
     for key in b.__dict__:
         print key,':',b.__dict__[key]
@@ -256,21 +263,21 @@ addtrx
 '''
 @main.route('/bs/<bsid>/addtrx_datacheck', methods=['GET', 'POST'])
 @login_required
-def addtrx_DataCheck(bsid, trxid):
+def addtrx_DataCheck(bsid):
     #value check
     d={}
     # t=TRXConfig.query.filter_by(TRXID=int(trxid)).first()
     bss=BSConfig.query.filter_by(BSID=int(bsid)).first()
     trx_names=[b.trx_name for b in bss.TRXs]
     trx_IPs=[b.TRXIP for b in bss.TRXs]
-    print trx_names
+    # print trx_names
     trx_name = request.form['trx_name']
     trx_ip = request.form['trx_ip']
     if (trx_name not in trx_names):
         d['trx_name'] = 0
     else:
         d['trx_name'] = 2
-    if  (trx_ip not in trx_IPs):
+    if (trx_ip not in trx_IPs):
         d['trx_ip'] = 0
     else:
         d['trx_ip'] = 2
@@ -284,12 +291,12 @@ def addtrx(bsid):
     if request.method == "GET":
         return render_template('addtrx.html', bsid=int(bsid))
     else:
-        trx = TRXConfig(trx_name = request.trx_name,\
-                        TRXIP    = request.TRXIP,\
-                        TRXPort  = request.TRXPort,\
-                        TRXTxPower = request.TRXTxPower,\
-                        TRXDataRate = request.TRXDataRate,\
-                        TRXFreq     = request.TRXFreq,\
+        trx = TRXConfig(trx_name = request.form['trx_name'],\
+                        TRXIP    = request.form['TRXIP'],\
+                        TRXPort  = request.form['TRXPort'],\
+                        TRXTxPower = request.form['TRXTxPower'],\
+                        TRXDataRate = request.form['TRXDataRate'],\
+                        TRXFreq     = request.form['TRXFreq'],\
                         BS_ID      = int(bsid))
         db.session.add(trx)
         db.session.commit()
@@ -299,6 +306,7 @@ def addtrx(bsid):
             struct_type = struct.Struct('!3BHIH10s8s4H')
             value=(0x88, 0x88, 0x13, trx.BS_ID, trx.TRXID, 0, trx.trx_name.encode('utf-8'), IPy.IP(trx.TRXIP).strHex()[2:], trx.TRXPort, trx.TRXTxPower, trx.TRXDataRate, trx.TRXFreq)
             data = struct_type.pack(*value)
+            errormsg=0
             try:
                 ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
                                   (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), data)
@@ -306,29 +314,29 @@ def addtrx(bsid):
                     recv_data = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
                     strt_b = struct.Struct('!4s')
                     d_b = strt_b.unpack(recv_data)
-                    if d_b=='aaaa':
-                        success = 0
+                    if d_b=='Base':
+                        errormsg = 0
                     else:
-                        success = 1
+                        errormsg = 'cfg failed'
                 except socket.error, e:
                     success = 1
-                    flash(e)
+                    errormsg='receive failed:'+e.message
                     #recv error
 
             except socket.error, e:
                 #send error
-                success = 1
-                flash(socket.error)
+                errormsg='send failed'+e.message
         except socket.error, e:
             #pack error
-            success = 1
-            flash(socket.error)
-        if success==1:
-            flash('failed!')
+            errormsg = 'data problem:'+e.message
+        print errormsg
+        if errormsg!=0:
+            flash(errormsg)
+            print trx.TRXID
             db.session.delete(trx)
-            return render_template('addtrx.html', bsid=int(bsid), form=form)
-
-        return redirect(url_for('main.page_base', bsid=int(bsid)))
+            return redirect(url_for('main.addtrx',bsid=bsid))
+        else:
+            return redirect(url_for('main.page_base', bsid=int(bsid)))
 
 
 '''
@@ -414,56 +422,57 @@ def pull_bscfg(bsid):
         try:
             rowdata = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
             print "a"
-            strt = struct.Struct('!3BHIH10s8s8s9H')
+            strt = struct.Struct('=3BHIH10s8s8s8H')
             #wait for a bscfg msg from bs wait time: 15s
             try:
-                pdata= strt.unpack(rowdata)
-                if pdata[0] is  0x88 and pdata[1] is  0x88 and\
-                    pdata[2] is 0x21 and pdata[3] is  b.BSID:
-                    b.bs_name = pdata[6]
+                pdata = strt.unpack(rowdata)
+                # print pdata
+                if pdata[0] is 0x88 and pdata[1] is 0x88 and\
+                    pdata[2] is 0x21 and pdata[3] is int(b.BSID):
+                    b.bs_name = pdata[6].strip('\x00')
                     b.BSIP1 = IPy.IP(int(pdata[7],16)).net()
                     b.BSIP2 = IPy.IP(int(pdata[8],16)).net()
                     b.BSPort1 = pdata[9]
                     b.BSPort2 = pdata[10]
                     b.ulPacketTime = pdata[11]
                     b.ulPacketNum = pdata[12]
-                    b.dlLogicSubFrameNum=pdata[13]
-                    b.dlLogicSubFrameIdx=pdata[14]
-                    b.dlPacketTime=pdata[15]
-                    b.ulCompetitionSectionTime=pdata[16]
-                    b.sin_family=pdata[17]
+                    b.ulCompetitionSectionTime = pdata[13]
+                    b.dlPacketTime = pdata[14]
+                    b.dlLogicSubFrameNum = pdata[15]
+                    b.dlLogicSubFrameIdx = pdata[16]
                     db.session.add(b)
                     db.session.commit()
                 else:
-                    errormsg='wrong_data'
+                    errormsg = 'wrong_data'
             except socket.error, e:
-                errormsg=e
+                errormsg = e
         except socket.error, e:
-            errormsg=e.message
-
+            errormsg = e.message
     except socket.error, e:
-        errormsg=e
+        errormsg = e
     #depack the msg & write to db
     #d={'ret':0,'BSName':'aa', 'BSIP1':'192.168.1.1'}
-    #print "c"
+    print errormsg
     data=b.config_as_dict()
-    data['errors']=errormsg
-    print data
+    data['errors'] = errormsg
+    # print data
     return json.dumps(data)
 
 
-@main.route('/bs/<bsid>/push_basecfg_datacheck', methods=['GET', 'POST'])
+@main.route('/bs/<bsid>/push_bscfg_datacheck', methods=['GET', 'POST'])
 @login_required
-def Push_BaseCfg_DataCheck(bsid, trxid):
+def Push_BaseCfg_DataCheck(bsid):
     # value check
     d = {}
     bs = BSConfig.query.filter_by(BSID=int(bsid)).first()
-    bs_names = [name for name in bs.bs_name]
-    trx_name = request.form['bs_name']
-    if (trx_name == bs.bs_name) or (trx_name not in trx_names):
-        d['trx_name'] = 0
+    name = request.form['bs_name']
+    bs = BSConfig.query.filter_by(bs_name=name).first()
+    print bs
+    print type(bs)
+    if((bs is None) or (name is bs.bs_name)):
+        d['bs_name'] = 0
     else:
-        d['trx_name'] = 2
+        d['bs_name'] = 2
     print d
     return json.dumps(d)
 
@@ -472,37 +481,18 @@ def Push_BaseCfg_DataCheck(bsid, trxid):
 @login_required
 def push_bscfg(bsid):
     b=BSConfig.query.filter_by(BSID=bsid).first()
-    #db.session.delete(bs_origin)
-    #db.session.commit()
-    #b=BSConfig()
-    form = BaseForm(bs=b)
-    print form.validate()
-    print form.errors
-    #print form.BSPort1.data
-    #print form.bs_name.data
-    #print type(form.BSPort1.data)
-    #a= request.form.to_dict()
-    #print a
-    #key = a.keys()
-    if request.method == 'POST' and form.validate():        #value check
-        #base none
-        #write to trx_db
-        b.bs_name = form.bs_name.data
-        b.BSIP1   = form.BSIP1.data
-        b.BSPort1 = form.BSPort1.data
-        b.BSIP2   = form.BSIP2.data
-        b.BSPort2 = form.BSPort2.data
-        b.ulPacketTime = form.ulPacketTime.data
-        b.ulPacketNum  = form.ulPacketNum.data
-        b.dlLogicSubFrameNum = form.dlLogicSubFrameNum.data
-        b.dlLogicSubFrameIdx = form.dlLogicSubFrameIdx.data
-        b.dlPacketTime = form.dlPacketTime.data
-        b.ulCompetitionSectionTime = form.ulCompetitionSectionTime.data
-        b.sin_family = form.sin_family.data
-        print b.as_dict()
-        print b.config_as_dict()
-        db.session.add(b)
-        '''#send to base
+    b.bs_name = request.form['bs_name']
+    b.BSIP1   = request.form['BSIP1']
+    b.BSPort1 = request.form['BSPort1']
+    b.BSIP2   = request.form['BSIP2']
+    b.BSPort2 = request.form['BSPort2']
+    b.ulPacketTime = request.form['ulPacketTime']
+    b.ulPacketNum  = request.form['ulPacketNum']
+    b.ulCompetitionSectionTime = request.form['ulCompetitionSectionTime']
+    b.dlPacketTime = request.form['dlPacketTime']
+    b.dlLogicSubFrameNum = request.form['dlLogicSubFrameNum']
+    b.dlLogicSubFrameIdx = request.form['dlLogicSubFrameIdx']
+    '''#send to base
            #---package date:head, 3BHIH
            #--payload:   10s15s15s9H
            #--          bs_name 10s
@@ -516,37 +506,39 @@ def push_bscfg(bsid):
            #--6     dlLogicSubFrameIdx
            #--7     dlPacketTime
            #--8     ulCompetitionSectionTime
-           #--9     sin_family'''
-        value=(0x88,0x88,0x31,b.BSID,0x00000000, 0x0000,b.bs_name.encode('utf-8'), IPy.IP(b.BSIP1).strHex()[2:], IPy.IP(b.BSIP2).strHex()[2:], \
-               b.BSPort1,b.BSPort2, b.ulPacketTime, b.ulPacketNum, b.dlLogicSubFrameNum,b.dlLogicSubFrameIdx, b.dlPacketTime, \
-               b.ulCompetitionSectionTime,b.sin_family)
-        #s = struct.Struct(packfmt[10000])
-        strt = struct.Struct('!3BHIH10s8s8s9H')
-        #print value
-        d = strt.pack(*value)
+           #--9     sin_family
+    '''
+    value=(0x88,0x88,0x31,b.BSID,0x00000000, 0x0000,b.bs_name.encode('utf-8'), IPy.IP(b.BSIP1).strHex()[2:], IPy.IP(b.BSIP2).strHex()[2:], \
+               int(b.BSPort1), int(b.BSPort2), int(b.ulPacketTime), int(b.ulPacketNum), int(b.ulCompetitionSectionTime), \
+               int(b.dlPacketTime), int(b.dlLogicSubFrameNum), int(b.dlLogicSubFrameIdx))
+    strt = struct.Struct('!3BHIH10s8s8s8H')
+    d = strt.pack(*value)
         #print binascii.hexlify(d)
            #---send
-        errormsg = 'none'
-        try:
-            ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
+    errormsg = 0
+    try:
+        ret = UDPSendtoBS((current_app.config['SERVER_ADDR'], current_app.config['SERVER_PORT_S']), \
                               (current_app.config['BASE_ADDR'], current_app.config['BASE_PORT']), d)
-            try:
-                rowdata = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
-                strt_b = struct.Struct('!4s')
-                d_b = strt_b.unpack(rowdata)
-                #check d_b to know
-            except socket.error,e:
-                errormsg = 'receive:'+e.message
-        except socket.error, e:
-            errormsg = 'send:'+e.message
-        if errormsg=='none':
-            return redirect(url_for('main.page_base',form=form, bsid=int(bsid), msg=1))
-        else:
-            db.session.rollback()
-            flash(errormsg)
-            return redirect(url_for('main.pagebase',form=form, bsid=int(bsid), msg=2))
+        try:
+            rowdata = UDPRecvfromBS((current_app.config['BASE_ADDR'], current_app.config['SERVER_PORT_R']))
+            strt_b = struct.Struct('=4s')
+            d_b = strt_b.unpack(rowdata)
+            #check d_b to know
+            # print d_b[0],type(d_b[0]),d_b=='Base',d_b[0]=='Base'
+            if d_b[0] != 'Base':
+                errormsg = 'cfg failed'
+        except socket.error,e:
+            errormsg = 'receive:'+e.message
+    except socket.error, e:
+        errormsg = 'send:'+e.message
+    print errormsg
+    if errormsg==0:
+        flash("success!")
+        return redirect(url_for('main.page_base', bsid=int(bsid), msg=1))
     else:
-        return render_template('base.html',form=form,bsid=int(bsid),msg=2)
+        db.session.rollback()
+        flash(errormsg)
+        return redirect(url_for('main.page_base', bsid=int(bsid), msg=2))
 
 
 #pull trx config from db
@@ -587,9 +579,7 @@ def PullTrxCfg(bsid,trxid):
                     # print len(namex)
                     # for i in range(len(namex)):
                     #     print i,namex[i]
-                    # trx_db.trx_name = namex
-                    print pdata[6].strip('\x00')
-
+                    trx_db.trx_name = pdata[6].strip('\x00')
                     trx_db.TRXIP = IPy.IP(int(pdata[7],16)).net()
                     trx_db.TRXPort = pdata[8]
                     trx_db.TRXTxPower = pdata[9]
@@ -598,9 +588,9 @@ def PullTrxCfg(bsid,trxid):
                     db.session.add(trx_db)
                     db.session.commit()
                 else:
-                    errormsg='数据错误'
+                    errormsg = '数据错误'
             except:
-                errormsg='数据解析失败'
+                errormsg = '数据解析失败'
         except:
             errormsg = '接收失败'
     except:
